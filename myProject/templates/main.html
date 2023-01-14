@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .my-forms{
+        display: flex;
+        justify-content: space-around;
+        width: 90%;
+        margin: auto;
+    }
+    .register-form,.login-form{
+        width: 30%;
+        background-color: rgb(188, 221, 223);
+        padding: 30px;
+        margin: 30px auto;
+        border-radius: 15px;
+    }
+    .table{
+        background-color: rgb(188, 221, 223)
+    }
+</style>
+{% if not current_user.is_authenticated %}
+    {% if session['page'] == 'forgot' %}
+    <div class="register-form">
+        <h3 class="text-center mb-3">Reset Passord</h3>
+        <form method="POST">
+            {{forgotPassForm.hidden_tag()}}
+            <div class="mb-3">
+                {{forgotPassForm.email.label(class='form-label')}}
+                {{forgotPassForm.email(class='form-control')}}
+            </div>
+            <div class="mb-3">
+                {{forgotPassForm.submit(class='btn btn-primary')}}
+            </div>
+            <a href="/login">Login</a>
+        </form>
+    </div>
+    {%else%}
+    <div class="my-forms">
+        {% if session['page'] == 'register' %}
+        <div class="register-form">
+            <h3 class="text-center mb-3">Registeration Form</h3>
+            <form method="POST">
+                {{registerForm.hidden_tag()}}
+                <div class="mb-3">
+                    {{registerForm.email.label(class='form-label')}}
+                    {{registerForm.email(class='form-control')}}
+                </div>
+                <div class='mb-3'>
+                    {{registerForm.name.label(class='form-label')}}
+                    {{registerForm.name(class='form-control')}}
+                </div>
+                <div class='mb-3'>
+                    {{registerForm.password.label(class='form-label')}}
+                    {{registerForm.password(class='form-control')}}
+                </div>
+                <div class='mb-3'>
+                    {{registerForm.pass_confirm.label(class='form-label')}}
+                    {{registerForm.pass_confirm(class='form-control')}}
+                </div>
+                {{registerForm.submit(class='btn btn-primary')}}
+            </form>
+            <a href="/login">Login</a>
+        </div>
+        {% elif session['page'] == 'login' %}
+        <div class="login-form">
+            <h3 class="text-center mb-3">Login Form</h2>
+            <form method="POST">
+                {{loginForm.hidden_tag()}}
+                <div class="mb-3">
+                    {{loginForm.email.label(class='form-label')}}
+                    {{loginForm.email(class='form-control')}}
+                </div>
+                <div class='mb-3'>
+                    {{loginForm.password.label(class='form-label')}}
+                    {{loginForm.password(class='form-control')}}
+                </div>
+                {{loginForm.submit(class='btn btn-primary mb-3')}}
+            </form>
+            <a href="/forgot">Forgot Password</a>
+            <a href="/register">Register</a>
+        </div>
+        {%endif%}
+    </div>
+
+
+    <h2 class="text-center mb-4 mt-3">All Users</h2>
+    <table class="table w-75 mx-auto">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Password</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{user.id}}</td>
+            <td>{{user.name}}</td>
+            <td>{{user.email}}</td>
+            <td>{{user.password[:50]}}</td>
+            <!-- <td>{{user.change_pass and user.change_pass[:50]}}</td> -->
+        </tr>
+        {% endfor %}
+    </table>
+    {%endif%}
+{% else %}
+<style>
+    body {
+ font-family: Arial, sans-serif;
+ padding: 20px;
+}
+
+h1 {
+ text-align: center;
+ margin-bottom: 30px;
+ color: #4CAF50;
+}
+
+form {
+ width: 50%;
+ margin: 0 auto;
+ border: 1px solid #ccc;
+ padding: 20px;
+ border-radius: 5px;
+}
+
+label {
+ display: block;
+ margin-bottom: 10px;
+ font-weight: bold;
+}
+
+input[type="text"], textarea {
+ width: 100%;
+ padding: 12px 20px;
+ margin: 8px 0;
+ box-sizing: border-box;
+ border: 1px solid #ccc;
+ border-radius: 4px;
+}
+</style>
+M1croTranslate
+    <a href="/logout">Logout</a>
+    <form method="POST" action="/submit">
+
+    <label for="select-list">From:</label>
+    <select id="select-list">
+        <option value="option1" selected>German</option>
+        <option value="option2">English</option>
+        <option value="option3">Russian</option>
+    </select>
+
+    <label for="select-list">To:</label>
+    <select id="select-list" >
+        <option value="option1">German</option>
+        <option value="option2" selected>English</option>
+        <option value="option3">Russian</option>
+    </select>
+
+        <label for="multiple-of-6">Deadline: hours from now (multiples of 6) </label>
+        <input type="number" id="multiple-of-6" step="6">
+
+        See recommendation deadline below
+
+          <label for="date">Deadline: choose a day </label>
+        <input type="date" id="dateField" min="<current date + 7 days>" max="<current date + 14 days>">
+        and choose AM or PM
+
+
+        <label for="message">Text to translate:</label>
+        <textarea id="message" name="message" rows="10"></textarea>
+        <p>Remaining words: </p>
+
+        <input type="submit" value="Submit">
+    </form>
+    Your translation will appear here before <> In the meantime here is a MT of your text
+    Is this good enough?
+    It is free for you. Click
+    <form>
+    <label for="readonly-textarea">Translation:</label>
+    <textarea id="readonly-textarea" readonly>This is a read-only textarea</textarea>
+    <input type="submit" value="Send to Team">
+    </form>
+{% endif %}
+
+{% endblock %}
