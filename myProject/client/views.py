@@ -41,6 +41,7 @@ def home():
             return redirect(next)
         else:
             print("Invalid login details")
+            return redirect(url_for('client.home'))
 
     # Change Password Form
     forgotPassForm = ForgotPassForm()

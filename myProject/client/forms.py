@@ -32,7 +32,7 @@ class ChangePassForm(FlaskForm):
 class TranslationForm(FlaskForm):
     language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
     language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
-    deadline = RadioField("Deadline",choices=[('next 2 hours',"next 2 hours"),('Tomorrow before 9 am',"Tomorrow before 9 am"),("Tomorrow before 3 pm","Tomorrow before 3 pm"),('Day after tomorrow before 9 am',"Day after tomorrow before 9 am")],validators=[DataRequired()])
+    deadline = RadioField("Deadline",choices=[(1,"next 2 hours"),(2,"Tomorrow before 9 am"),(3,"Tomorrow before 3 pm"),(4,"Day after tomorrow before 9 am")],validators=[DataRequired()])
     text = TextAreaField("Text for translation",validators=[DataRequired()])
     price = IntegerField("Your Price",validators=[DataRequired()])
     submit = SubmitField('Make Request')
