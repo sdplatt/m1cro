@@ -1,8 +1,8 @@
 from flask import redirect,url_for,render_template,request,Blueprint,session
-from myProject.models import User
-from myProject.client.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm
+from myProject.models import Client,Translation,Status
+from myProject.client.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm
 from myProject import db,mail
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
 
@@ -10,24 +10,25 @@ client = Blueprint('client',__name__)
 
 @client.route('/',methods=['GET','POST'])
 def home():
-    # if(session['page'] == None):
     if not session.get('page'):
         session['page'] = 'login'
+
     # REGISTERATION FORM
     registerForm = RegisterationForm()
     if registerForm.validate_on_submit():
-        user = User(name=registerForm.name.data,
+        user = Client(name=registerForm.name.data,
                     email=registerForm.email.data,
                     password=registerForm.password.data)
 
         db.session.add(user)
         db.session.commit()
+        session['page'] = 'login'
         return redirect(url_for('client.home'))
 
     # LOGIN FORM
     loginForm = LoginForm()
     if loginForm.validate_on_submit():
-        user = User.query.filter_by(email=loginForm.email.data).first()
+        user = Client.query.filter_by(email=loginForm.email.data).first()
 
         if user is not None and user.check_password(loginForm.password.data):
             login_user(user)
@@ -36,6 +37,7 @@ def home():
             if next == None or not next[0] == '/':
                 next = url_for('client.home')
 
+            session['trans-page'] = 'create'
             return redirect(next)
         else:
             print("Invalid login details")
@@ -43,7 +45,7 @@ def home():
     # Change Password Form
     forgotPassForm = ForgotPassForm()
     if forgotPassForm.validate_on_submit():
-        user = User.query.filter_by(email=forgotPassForm.email.data).first()
+        user = Client.query.filter_by(email=forgotPassForm.email.data).first()
 
         if user is not None:
             id = user.changePassLink()
@@ -58,8 +60,37 @@ def home():
             mail.send(msg)
             return redirect(url_for('client.home'))
     # USERS TABLE
-    users = User.query.all()
-    return render_template('main.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users)
+    users = Client.query.all()
+
+    # translations form
+    translationForm = TranslationForm()
+    if translationForm.validate_on_submit():
+        text = translationForm.text.data
+        words = len(text.split(' '))
+        if(words>300):
+            session['error'] = f'Word limit is 300. You used {words} words.'
+        else:
+            status = Status('new')
+            db.session.add(status)
+            db.session.commit()
+            translation = Translation(client_id=current_user.id,
+                                    l_from=translationForm.language_from.data,
+                                    l_to=translationForm.language_to.data,
+                                    deadline=translationForm.deadline.data,
+                                    text = translationForm.text.data,
+                                    price=translationForm.price.data,
+                                    statusId=status.id)
+            db.session.add(translation)
+            db.session.commit()
+            session['error'] = None
+        return redirect(url_for('client.home'))
+    
+    # TRANSLATIONS TABLE
+    try:
+        translations = Client.query.filter_by(id=current_user.id).first().translations
+    except:
+        translations = []
+    return render_template('main.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,translationForm=translationForm,translations=translations)
 
 @client.route('/logout')
 def logout():
@@ -83,7 +114,7 @@ def register():
 
 @client.route('/change/<id>',methods=['GET','POST'])
 def change(id):
-    user = User.query.filter_by(change_pass=id).first()
+    user = Client.query.filter_by(change_pass=id).first()
     if user is not None:
         changePassForm = ChangePassForm()
         if changePassForm.validate_on_submit():
@@ -95,3 +126,20 @@ def change(id):
         return render_template('change-pass.html',changePassForm=changePassForm,user=user)
     else:
         return "Page Not Found"
+
+# TRANSLATIONS
+@client.route('/create-translation')
+def create_translation():
+    session['trans-page'] = "create"
+    return redirect(url_for('client.home'))
+
+@client.route('/translation/<id>')
+def show_translation(id):
+    translation = Translation.query.filter_by(id=id).first()
+    session['trans-page'] = translation
+    return redirect(url_for('client.home'))
+
+# @client.route('/test')
+# def delete_trans():
+#     client = Client.query.filter_by(id=1).first()
+#     return client.translations[0].language_from

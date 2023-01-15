@@ -20,6 +20,7 @@
     }
 </style>
 {% if not current_user.is_authenticated %}
+<div class="container">
     {% if session['page'] == 'forgot' %}
     <div class="register-form">
         <h3 class="text-center mb-3">Reset Passord</h3>
@@ -103,84 +104,102 @@
         {% endfor %}
     </table>
     {%endif%}
+</div>
 {% else %}
 <style>
-    body {
- font-family: Arial, sans-serif;
- padding: 20px;
-}
-
-h1 {
- text-align: center;
- margin-bottom: 30px;
- color: #4CAF50;
-}
-
-form {
- width: 50%;
- margin: 0 auto;
- border: 1px solid #ccc;
- padding: 20px;
- border-radius: 5px;
-}
-
-label {
- display: block;
- margin-bottom: 10px;
- font-weight: bold;
-}
-
-input[type="text"], textarea {
- width: 100%;
- padding: 12px 20px;
- margin: 8px 0;
- box-sizing: border-box;
- border: 1px solid #ccc;
- border-radius: 4px;
-}
+    .radio-form{
+        list-style: none;
+    }
+    .translations{
+        display: flex;
+        /* border-top: 1px solid rgba(0, 0, 0, 0.46);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.46); */
+    }
+    .all-translations{
+        width: 30%;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.114);
+        border-top: 1px solid rgba(0, 0, 0, 0.14);
+        border-left: 2px solid rgba(0, 0, 0, 0.14);
+        border-right: 1px solid rgba(0, 0, 0, 0.14);
+    }
+    .translation{
+        width: 100%;
+        min-height: 100px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+        cursor: pointer;
+    }
+    .new-translation{
+        width: 70%;
+        border-top: 1px solid rgba(0, 0, 0, 0.14);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+        min-height: 80vh;
+    }
+    .all-heading{
+        border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+        position: relative;
+    }
+    .new-btn{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    p{
+        margin-block-start:0.4rem ;
+        margin-block-end:0.4rem ;
+    }
 </style>
-M1croTranslate
-    <a href="/logout">Logout</a>
-    <form method="POST" action="/submit">
-
-    <label for="select-list">From:</label>
-    <select id="select-list">
-        <option value="option1" selected>German</option>
-        <option value="option2">English</option>
-        <option value="option3">Russian</option>
-    </select>
-
-    <label for="select-list">To:</label>
-    <select id="select-list" >
-        <option value="option1">German</option>
-        <option value="option2" selected>English</option>
-        <option value="option3">Russian</option>
-    </select>
-
-        <label for="multiple-of-6">Deadline: hours from now (multiples of 6) </label>
-        <input type="number" id="multiple-of-6" step="6">
-
-        See recommendation deadline below
-
-          <label for="date">Deadline: choose a day </label>
-        <input type="date" id="dateField" min="<current date + 7 days>" max="<current date + 14 days>">
-        and choose AM or PM
-
-
-        <label for="message">Text to translate:</label>
-        <textarea id="message" name="message" rows="10"></textarea>
-        <p>Remaining words: </p>
-
-        <input type="submit" value="Submit">
-    </form>
-    Your translation will appear here before <> In the meantime here is a MT of your text
-    Is this good enough?
-    It is free for you. Click
-    <form>
-    <label for="readonly-textarea">Translation:</label>
-    <textarea id="readonly-textarea" readonly>This is a read-only textarea</textarea>
-    <input type="submit" value="Send to Team">
-    </form>
+<a href="/logout" class="ms-4">Logout</a>
+<div class="translations my-4">
+    <div class="all-translations">
+        <div class="all-heading py-2"><h4 class="text-center">All Translations</h4><a href="/create-translation" class="text-dark new-btn">Create New</a></div>
+        {% for translation in translations %}
+        <a href="{{url_for('client.show_translation',id=translation.id)}}" class="text-decoration-none text-black">
+            <div class="translation px-4 py-3">
+                <p><span class="fw-bold">From:</span> {{translation.language_from}} To {{translation.language_from}}</p>
+                <p><span class="fw-bold">Price:</span> ${{translation.price}}</p>
+                <p><span class="fw-bold">Text:</span> {{translation.text[:80]}}...</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    <div class="new-translation p-4">
+        {%if session['trans-page']!=None and session['trans-page']!='create'%}
+        <div class="tranlation-details">
+            <p>{{session['trans-page'].text}}</p>            
+            <p>Status: {{session['trans-page'].status}}</p>
+            <p>Translator: Not done yet!</p>
+            <p>Deadline: {{session['trans-page'].deadline}}</p>
+        </div>
+        {%else%}
+        <form method="post">
+            {{translationForm.hidden_tag()}}
+            <div class="mb-3">
+                {{translationForm.language_from.label(class='form-label')}}
+                {{translationForm.language_from(class='form-control')}}
+            </div>
+            <div class="mb-3">
+                {{translationForm.language_to.label(class='form-label')}}
+                {{translationForm.language_to(class='form-control')}}
+            </div>
+            <div class="mb-3">
+                {{translationForm.deadline.label(class='form-label')}}
+                {{translationForm.deadline(class='form-control radio-form')}}
+            </div>
+            <div class="mb-3">
+                {{translationForm.text.label(class='form-label')}}
+                {{translationForm.text(class='form-control')}}
+            </div>
+            <div class="mb-3">
+                {{translationForm.price.label(class='form-label')}}
+                {{translationForm.price(class='form-control')}}
+            </div>
+            <div class="mb-3">
+                {{translationForm.submit(class='btn btn-success')}}
+            </div>
+        </form>
+        {%endif%}
+    </div>
+</div>
 {% endif %}
 
 {% endblock %}

@@ -27,7 +27,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+ os.path.join(basedir,'data
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-Migrate(app,db)
+Migrate(app,db,render_as_batch=True)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
