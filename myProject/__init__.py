@@ -34,4 +34,6 @@ login_manager.init_app(app)
 login_manager.login_view = 'client.home'
 
 from myProject.client.views import client
+from myProject.translator.views import translator
 app.register_blueprint(client)
+app.register_blueprint(translator)

@@ -46,6 +46,7 @@ class Translation(db.Model,UserMixin):
     statusId = db.Column(db.Integer,db.ForeignKey('status.id'),nullable=False)
     price = db.Column(db.Integer)
     translation = db.Column(db.String)
+    translatorId = db.Column(db.Integer,db.ForeignKey('translators.id'))
 
     def __init__(self,client_id,l_from,l_to,deadline,text,price,statusId):
         self.client_id = client_id
@@ -64,3 +65,39 @@ class Status(db.Model,UserMixin):
 
     def __init__(self,name):
         self.name = name
+
+
+class Translator(db.Model,UserMixin):
+
+    __tablename__ = 'translators'
+
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String)
+    email = db.Column(db.String, unique=True,index=True)
+    password = db.Column(db.String)
+    change_pass = db.Column(db.String,unique=True)
+    language_from = db.Column(db.String)
+    language_to = db.Column(db.String)
+    min_price = db.Column(db.Integer)
+    target_price = db.Column(db.Integer)
+    translations = db.relationship('Translation',backref="translator",lazy=True)
+    
+    def __init__(self,name,email,password,l_from,l_to,min_price,target_price):
+        self.name = name
+        self.email = email
+        self.password = generate_password_hash(password)
+        self.language_from= l_from
+        self.language_to = l_to
+        self.min_price = min_price
+        self.target_price = target_price
+
+    def check_password(self,password):
+        return check_password_hash(self.password,password)
+
+    def changePassLink(self):
+        id = str(uuid.uuid4())
+        self.change_pass = id
+        return id
+
+    def __repr__(self) :
+        return f"Translator: {self.name}, Langauge: {self.language_from} to {self.language_to}"

@@ -36,3 +36,14 @@ class TranslationForm(FlaskForm):
     text = TextAreaField("Text for translation",validators=[DataRequired()])
     price = IntegerField("Your Price",validators=[DataRequired()])
     submit = SubmitField('Make Request')
+
+class RegisterTranslator(FlaskForm):
+    name = StringField('Name',validators=[DataRequired()])
+    email = StringField('Email',validators=[DataRequired(),Email(),check_email])
+    password = PasswordField('Password',validators=[DataRequired(),EqualTo('pass_confirm')])
+    pass_confirm = PasswordField('Confirm Password',validators=[DataRequired()])
+    language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
+    language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
+    min_price = IntegerField("Min Price",validators=[DataRequired()])
+    target_price = IntegerField("Target Price",validators=[DataRequired()])
+    submit = SubmitField('Register')

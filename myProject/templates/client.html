@@ -19,8 +19,10 @@
         background-color: rgb(188, 221, 223)
     }
 </style>
-{% if not current_user.is_authenticated %}
+{% if session['user'] != 'client' %}
 <div class="container">
+    <h3>Client </h3>
+    <a href="/translator" class="text-center" target="_blank">I am a translator</a>
     {% if session['page'] == 'forgot' %}
     <div class="register-form">
         <h3 class="text-center mb-3">Reset Passord</h3>

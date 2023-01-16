@@ -1,6 +1,6 @@
 from flask import redirect,url_for,render_template,request,Blueprint,session
 from myProject.models import Client,Translation,Status
-from myProject.client.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm
+from myProject.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm
 from myProject import db,mail
 from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
@@ -38,6 +38,7 @@ def home():
                 next = url_for('client.home')
 
             session['trans-page'] = 'create'
+            session['user'] = 'client'
             return redirect(next)
         else:
             print("Invalid login details")
@@ -91,11 +92,12 @@ def home():
         translations = Client.query.filter_by(id=current_user.id).first().translations
     except:
         translations = []
-    return render_template('main.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,translationForm=translationForm,translations=translations)
+    return render_template('client.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,translationForm=translationForm,translations=translations)
 
 @client.route('/logout')
 def logout():
     logout_user()
+    session['user'] = None
     return redirect(url_for('client.home'))
 
 @client.route('/forgot')
