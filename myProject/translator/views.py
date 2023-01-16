@@ -1,8 +1,8 @@
 from flask import redirect,url_for,render_template,request,Blueprint,session
-from myProject.models import Client,Translation,Status,Translator
-from myProject.forms import LoginForm,ForgotPassForm,ChangePassForm,RegisterTranslator
+from myProject.models import Translation,Translator,Service
+from myProject.forms import LoginForm,ForgotPassForm,ChangePassForm,RegisterTranslator,AddServiceForm
 from myProject import db,mail
-# from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
 
@@ -20,10 +20,6 @@ def home():
                     email=registerForm.email.data,
                     password=registerForm.password.data,
                     is_human=registerForm.is_human.data)
-                    # l_from=registerForm.language_from.data,
-                    # l_to=registerForm.language_to.data,
-                    # min_price=registerForm.min_price.data,
-                    # target_price=registerForm.target_price.data
 
         db.session.add(user)
         db.session.commit()
@@ -35,9 +31,11 @@ def home():
     if loginForm.validate_on_submit():
         global myUser
         user = Translator.query.filter_by(email=loginForm.email.data).first()
-        myUser = user
-        if user is not None and user.check_password(loginForm.password.data):
 
+        if user is not None and user.check_password(loginForm.password.data):
+            login_user(user)
+            myUser = user
+            session['id'] = current_user.id
             next = request.args.get('next')
             if next == None or not next[0] == '/':
                 next = url_for('translator.home')
@@ -66,15 +64,36 @@ def home():
             msg.body = f'Click the link below to change your password:  {request.base_url}/change/{id}'
             mail.send(msg)
             return redirect(url_for('translator.home'))
+
+    # ADD SERVICE FORM
+    addServiceForm = AddServiceForm()
+    if addServiceForm.validate_on_submit():
+        try:
+            service = Service(l_from=addServiceForm.language_from.data,
+                        l_to=addServiceForm.language_to.data,
+                        min_price=addServiceForm.min_price.data,
+                        target_price=addServiceForm.target_price.data,
+                        translator=session.get('id'))
+            db.session.add(service)
+            db.session.commit()
+        except:
+            return redirect(url_for('translator.home'))
     # USERS TABLE
     users = Translator.query.all()
+
+    # SERVICES
+    try:
+        services = Translator.query.filter_by(id=session.get('id')).first().services
+    except:
+        services = []
     
-    
-    return render_template('translator.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,user=myUser)
+    return render_template('translator.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,user=myUser,services=services,addServiceForm=addServiceForm)
 
 @translator.route('/logout')
 def logout():
     session['user'] = None
+    logout_user()
+    session[id] = None
     return redirect(url_for('translator.home'))
 
 @translator.route('/forgot')

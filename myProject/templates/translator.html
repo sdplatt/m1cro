@@ -115,9 +115,84 @@
     {%endif%}
 </div>
 {%else%}
+<style>
+    .radio-form{
+        list-style: none;
+    }
+    .translations{
+        display: flex;
+        /* border-top: 1px solid rgba(0, 0, 0, 0.46);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.46); */
+    }
+    .all-translations{
+        width: 30%;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.114);
+        border-top: 1px solid rgba(0, 0, 0, 0.14);
+        border-left: 2px solid rgba(0, 0, 0, 0.14);
+        border-right: 1px solid rgba(0, 0, 0, 0.14);
+    }
+    .translation{
+        width: 100%;
+        min-height: 100px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+        cursor: pointer;
+    }
+    .new-translation{
+        width: 70%;
+        border-top: 1px solid rgba(0, 0, 0, 0.14);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+        min-height: 80vh;
+    }
+    .all-heading{
+        border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+        position: relative;
+    }
+    .new-btn{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    p{
+        margin-block-start:0.4rem ;
+        margin-block-end:0.4rem ;
+    }
+</style>
 <p><a href="logout">Logout</a></p>
-<ul>
-    <li>{{user.name}}</li>
-</ul>
+<div class="translations my-4">
+    <div class="all-translations">
+        <div class="all-heading py-2"><h4 class="text-center">All Services</h4><a href="/create-translation" class="text-dark new-btn">Create New</a></div>
+        {% for service in services %}
+        <div class="translation px-4 py-3">
+            <p><span class="fw-bold">From:</span> {{service.language_from}} To {{service.language_to}}</p>
+            <p><span class="fw-bold">Price:</span> ${{service.min_price}}</p>
+            <p><span class="fw-bold">Text:</span> {{service.target_price}}</p>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="new-translation p-4">        
+        <form method="post">
+            {{addServiceForm.hidden_tag()}}
+            <div class="mb-3">
+                {{addServiceForm.language_from.label(class='form-label')}}
+                {{addServiceForm.language_from(class='form-control')}}
+            </div>
+            <div class="mb-3">
+                {{addServiceForm.language_to.label(class='form-label')}}
+                {{addServiceForm.language_to(class='form-control')}}
+            </div>
+            <div class="mb-3">
+                {{addServiceForm.min_price.label(class='form-label')}}
+                {{addServiceForm.min_price(class='form-control radio-form')}}
+            </div>
+            <div class="mb-3">
+                {{addServiceForm.target_price.label(class='form-label')}}
+                {{addServiceForm.target_price(class='form-control',rows=10)}}
+            </div>
+            <div class="mb-3">
+                {{addServiceForm.submit(class='btn btn-success')}}
+            </div>
+        </form>
+    </div>
+</div>
 {%endif%}
 {% endblock %}

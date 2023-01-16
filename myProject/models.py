@@ -56,6 +56,9 @@ class Translation(db.Model,UserMixin):
         self.text = text
         self.statusId = statusId
 
+    def postProcess(self,price):
+        self.price = price
+
 class Status(db.Model,UserMixin):
 
     __tablename__ = 'status'
@@ -77,11 +80,14 @@ class Service(db.Model,UserMixin):
     target_price = db.Column(db.Integer)
     translatorId = db.Column(db.Integer,db.ForeignKey('translators.id'))
 
-    def __init__(self,l_from,l_to,min_price,target_price):        
+    __table_args__=(db.UniqueConstraint('language_from',"language_to",name="from_to"),)
+
+    def __init__(self,l_from,l_to,min_price,target_price,translator):        
         self.language_from= l_from
         self.language_to = l_to
         self.min_price = min_price
         self.target_price = target_price
+        self.translatorId=translator
 
 class Translator(db.Model,UserMixin):
 

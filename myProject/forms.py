@@ -10,16 +10,6 @@ def check_email_client(form, field):
 def check_email_translator(form, field):
     if Translator.query.filter_by(email=field.data).first():
         raise ValidationError('Email already registered.')
-
-# class notEqualTo():
-
-#     def __init__(self,field1,field2):
-#         self.field1 = field1
-#         self.field12 = field2
-
-#     def __call__(self,form,field):
-#         if(self.field1.data == self.field2.data):
-#             raise ValidationError('These fields can not be the same.')
         
 
 def languageNotEqualTo(form,field):
@@ -65,8 +55,11 @@ class RegisterTranslator(FlaskForm):
     password = PasswordField('Password',validators=[DataRequired(),EqualTo('pass_confirm')])
     pass_confirm = PasswordField('Confirm Password',validators=[DataRequired()])
     is_human = SelectField("Is Human", choices=[(True,"Yes"),(False,'No')])
-    # language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
-    # language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
-    # min_price = IntegerField("Min Price",validators=[DataRequired()])
-    # target_price = IntegerField("Target Price",validators=[DataRequired()])
     submit = SubmitField('Register')
+
+class AddServiceForm(FlaskForm):
+    language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
+    language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired(),languageNotEqualTo])
+    min_price = IntegerField("Min Price",validators=[DataRequired()])
+    target_price = IntegerField("Target Price",validators=[DataRequired()])
+    submit = SubmitField('Add Service')

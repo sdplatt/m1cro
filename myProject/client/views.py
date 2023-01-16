@@ -167,5 +167,5 @@ def show_translation(id):
 
 # @client.route('/test')
 # def delete_trans():
-#     client = Client.query.filter_by(id=1).first()
-#     return client.translations[0].language_from
+    # translations = Service.query.delete()
+    # db.session.commit()
