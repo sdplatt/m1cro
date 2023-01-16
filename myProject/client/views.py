@@ -1,13 +1,13 @@
 from flask import redirect,url_for,render_template,request,Blueprint,session
 from myProject.models import Client,Translation,Status
-from myProject.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm
+from myProject.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm,GetPriceForm
 from myProject import db,mail
 from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
 
 client = Blueprint('client',__name__)
-
+my_translation = None
 @client.route('/',methods=['GET','POST'])
 def home():
     if not session.get('page'):
@@ -66,7 +66,9 @@ def home():
 
     # translations form
     translationForm = TranslationForm()
+    
     if translationForm.validate_on_submit():
+        global my_translation
         text = translationForm.text.data
         words = len(text.split(' '))
         if(words>300):
@@ -80,11 +82,21 @@ def home():
                                     l_to=translationForm.language_to.data,
                                     deadline=translationForm.deadline.data,
                                     text = translationForm.text.data,
-                                    price=translationForm.price.data,
                                     statusId=status.id)
             db.session.add(translation)
             db.session.commit()
             session['error'] = None
+            session['popup'] = True
+            my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text[:150]}
+        return redirect(url_for('client.home'))
+
+    getPriceForm = GetPriceForm()
+    if getPriceForm.validate_on_submit():
+        translation = Translation.query.get(my_translation['id'])
+        translation.price = getPriceForm.price.data
+        db.session.commit()
+        session['popup'] = False
+        my_translation = None
         return redirect(url_for('client.home'))
     
     # TRANSLATIONS TABLE
@@ -92,7 +104,7 @@ def home():
         translations = Client.query.filter_by(id=current_user.id).first().translations
     except:
         translations = []
-    return render_template('client.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,translationForm=translationForm,translations=translations)
+    return render_template('client.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,translationForm=translationForm,translations=translations,getPriceForm=getPriceForm,translation=my_translation)
 
 @client.route('/logout')
 def logout():
@@ -114,6 +126,17 @@ def login():
 def register():
     session['page'] = 'register'
     return redirect(url_for('client.home'))
+
+# @client.route('/price-popup')
+# def price_pop():
+#     session['popup'] = True
+#     return redirect(url_for('client.home'))
+
+# @client.route('/remove-popup')
+# def remove_price_pop():
+#     session['popup'] = False
+#     session['translator'] = None
+#     return redirect(url_for('client.home'))
 
 @client.route('/change/<id>',methods=['GET','POST'])
 def change(id):

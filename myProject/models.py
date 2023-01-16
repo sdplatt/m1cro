@@ -41,20 +41,19 @@ class Translation(db.Model,UserMixin):
     client_id = db.Column(db.Integer,db.ForeignKey('clients.id'),nullable=False)
     language_from = db.Column(db.String)
     language_to = db.Column(db.String)
-    deadline = db.Column(db.String)
+    deadline = db.Column(db.Integer)
     text = db.Column(db.String)
     statusId = db.Column(db.Integer,db.ForeignKey('status.id'),nullable=False)
     price = db.Column(db.Integer)
     translation = db.Column(db.String)
     translatorId = db.Column(db.Integer,db.ForeignKey('translators.id'))
 
-    def __init__(self,client_id,l_from,l_to,deadline,text,price,statusId):
+    def __init__(self,client_id,l_from,l_to,deadline,text,statusId):
         self.client_id = client_id
         self.language_from= l_from
         self.language_to = l_to
         self.deadline = deadline
         self.text = text
-        self.price = price
         self.statusId = statusId
 
 class Status(db.Model,UserMixin):
@@ -67,6 +66,23 @@ class Status(db.Model,UserMixin):
         self.name = name
 
 
+class Service(db.Model,UserMixin): 
+
+    __tablename__ = 'services'
+
+    id = db.Column(db.Integer,primary_key=True)
+    language_from = db.Column(db.String)
+    language_to = db.Column(db.String)
+    min_price = db.Column(db.Integer)
+    target_price = db.Column(db.Integer)
+    translatorId = db.Column(db.Integer,db.ForeignKey('translators.id'))
+
+    def __init__(self,l_from,l_to,min_price,target_price):        
+        self.language_from= l_from
+        self.language_to = l_to
+        self.min_price = min_price
+        self.target_price = target_price
+
 class Translator(db.Model,UserMixin):
 
     __tablename__ = 'translators'
@@ -76,20 +92,15 @@ class Translator(db.Model,UserMixin):
     email = db.Column(db.String, unique=True,index=True)
     password = db.Column(db.String)
     change_pass = db.Column(db.String,unique=True)
-    language_from = db.Column(db.String)
-    language_to = db.Column(db.String)
-    min_price = db.Column(db.Integer)
-    target_price = db.Column(db.Integer)
+    is_human = db.Column(db.Boolean)
     translations = db.relationship('Translation',backref="translator",lazy=True)
+    services = db.relationship('Service',backref="translator",lazy=True)
     
-    def __init__(self,name,email,password,l_from,l_to,min_price,target_price):
+    def __init__(self,name,email,password,is_human):
         self.name = name
         self.email = email
+        self.is_human = bool(is_human)
         self.password = generate_password_hash(password)
-        self.language_from= l_from
-        self.language_to = l_to
-        self.min_price = min_price
-        self.target_price = target_price
 
     def check_password(self,password):
         return check_password_hash(self.password,password)
@@ -99,5 +110,5 @@ class Translator(db.Model,UserMixin):
         self.change_pass = id
         return id
 
-    def __repr__(self) :
-        return f"Translator: {self.name}, Langauge: {self.language_from} to {self.language_to}"
+    # def __repr__(self) :
+    #     return f"Translator: {self.name}"

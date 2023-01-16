@@ -157,7 +157,7 @@
         {% for translation in translations %}
         <a href="{{url_for('client.show_translation',id=translation.id)}}" class="text-decoration-none text-black">
             <div class="translation px-4 py-3">
-                <p><span class="fw-bold">From:</span> {{translation.language_from}} To {{translation.language_from}}</p>
+                <p><span class="fw-bold">From:</span> {{translation.language_from}} To {{translation.language_to}}</p>
                 <p><span class="fw-bold">Price:</span> ${{translation.price}}</p>
                 <p><span class="fw-bold">Text:</span> {{translation.text[:80]}}...</p>
             </div>
@@ -192,16 +192,53 @@
                 {{translationForm.text(class='form-control',rows=10)}}
             </div>
             <div class="mb-3">
-                {{translationForm.price.label(class='form-label')}}
-                {{translationForm.price(class='form-control')}}
-            </div>
-            <div class="mb-3">
                 {{translationForm.submit(class='btn btn-success')}}
             </div>
         </form>
         {%endif%}
     </div>
 </div>
+{% if session['popup'] == True %}
+<style>
+    .popup{
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        width: 100vw;
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+    .popup-content{
+        width: 450px;
+        height: 300px;
+        background-color: white;
+        z-index: 2;
+        border-radius: 10px;
+    }
+</style>
+<div class="popup">
+    <div class="popup-content p-4">
+        Translation Details: 
+        <ul>
+            <li>From {{translation.language_from}} to {{translation.language_to}}</li>
+            <li>Deadline: {{translation.deadline}}</li>
+            <li>Text: {{translation.text[:150]}}...</li>
+        </ul>
+        <form method="POST">
+            {{getPriceForm.hidden_tag()}}
+            <div class="mb-3">
+                {{getPriceForm.price.label(class='form-label')}}
+                {{getPriceForm.price(class='form-control')}}
+            </div>
+            {{getPriceForm.submit(class='btn btn-success')}}
+        </form>
+    </div>
+</div>
+{%endif%}
 {% endif %}
 
 {% endblock %}

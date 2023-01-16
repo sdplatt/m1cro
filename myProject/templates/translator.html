@@ -15,6 +15,9 @@
         margin: 30px auto;
         border-radius: 15px;
     }
+    .register-form{
+        width: 40%;
+    }
     .table{
         background-color: rgb(188, 221, 223)
     }
@@ -54,28 +57,16 @@
                     {{registerForm.name(class='form-control')}}
                 </div>
                 <div class='mb-3'>
+                    {{registerForm.is_human.label(class='form-label')}}
+                    {{registerForm.is_human(class='form-control')}}
+                </div>
+                <div class='mb-3'>
                     {{registerForm.password.label(class='form-label')}}
                     {{registerForm.password(class='form-control')}}
                 </div>
                 <div class='mb-3'>
                     {{registerForm.pass_confirm.label(class='form-label')}}
                     {{registerForm.pass_confirm(class='form-control')}}
-                </div>
-                <div class='mb-3'>
-                    {{registerForm.language_from.label(class='form-label')}}
-                    {{registerForm.language_from(class='form-control')}}
-                </div>
-                <div class='mb-3'>
-                    {{registerForm.language_to.label(class='form-label')}}
-                    {{registerForm.language_to(class='form-control')}}
-                </div>
-                <div class='mb-3'>
-                    {{registerForm.min_price.label(class='form-label')}}
-                    {{registerForm.min_price(class='form-control')}}
-                </div>
-                <div class='mb-3'>
-                    {{registerForm.target_price.label(class='form-label')}}
-                    {{registerForm.target_price(class='form-control')}}
                 </div>
                 {{registerForm.submit(class='btn btn-primary')}}
             </form>
@@ -107,16 +98,16 @@
     <table class="table w-75 mx-auto">
         <tr>
             <th>Id</th>
-            <th>Name</th>
             <th>Email</th>
-            <th>Password</th>
+            <th>Langauge From</th>
+            <th>Langauge To</th>
         </tr>
         {% for user in users %}
         <tr>
             <td>{{user.id}}</td>
-            <td>{{user.name}}</td>
             <td>{{user.email}}</td>
-            <td>{{user.password[:50]}}</td>
+            <td>coming soon</td>
+            <td>coming soon</td>
             <!-- <td>{{user.change_pass and user.change_pass[:50]}}</td> -->
         </tr>
         {% endfor %}
@@ -127,11 +118,6 @@
 <p><a href="logout">Logout</a></p>
 <ul>
     <li>{{user.name}}</li>
-    <li>{{user.language_from}} to {{user.language_to}}</li>
-    <li>Min Price: {{user.min_price}}</li>
-    <li>Target Price: {{user.target_price}}</li>
 </ul>
-
-<p>{{current_user.email}}</p>
 {%endif%}
 {% endblock %}

@@ -1,6 +1,6 @@
 from flask import redirect,url_for,render_template,request,Blueprint,session
 from myProject.models import Client,Translation,Status,Translator
-from myProject.forms import LoginForm,RegisterTranslator,ForgotPassForm,ChangePassForm,TranslationForm
+from myProject.forms import LoginForm,ForgotPassForm,ChangePassForm,RegisterTranslator
 from myProject import db,mail
 # from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
@@ -19,10 +19,11 @@ def home():
         user = Translator(name=registerForm.name.data,
                     email=registerForm.email.data,
                     password=registerForm.password.data,
-                    l_from=registerForm.language_from.data,
-                    l_to=registerForm.language_to.data,
-                    min_price=registerForm.min_price.data,
-                    target_price=registerForm.target_price.data)
+                    is_human=registerForm.is_human.data)
+                    # l_from=registerForm.language_from.data,
+                    # l_to=registerForm.language_to.data,
+                    # min_price=registerForm.min_price.data,
+                    # target_price=registerForm.target_price.data
 
         db.session.add(user)
         db.session.commit()
@@ -62,7 +63,7 @@ def home():
                 sender ='bansalpushkar100@gmail.com',
                 recipients = [user.email]
                )
-            msg.body = f'Click the link below to change your password:  {request.base_url}change/{id}'
+            msg.body = f'Click the link below to change your password:  {request.base_url}/change/{id}'
             mail.send(msg)
             return redirect(url_for('translator.home'))
     # USERS TABLE
@@ -90,3 +91,19 @@ def login():
 def register():
     session['page'] = 'register'
     return redirect(url_for('translator.home'))
+
+
+@translator.route('/change/<id>',methods=['GET','POST'])
+def change(id):
+    user = Translator.query.filter_by(change_pass=id).first()
+    if user is not None:
+        changePassForm = ChangePassForm()
+        if changePassForm.validate_on_submit():
+            password = generate_password_hash(changePassForm.password.data)
+            user.password = password
+            db.session.commit()
+            session['page'] = 'login'
+            return redirect(url_for('translator.home'))
+        return render_template('change-pass.html',changePassForm=changePassForm,user=user)
+    else:
+        return "Page Not Found"

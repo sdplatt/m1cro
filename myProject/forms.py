@@ -1,11 +1,30 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField,PasswordField,SubmitField,ValidationError,SelectField,RadioField,TextAreaField,IntegerField
-from wtforms.validators import DataRequired,Email,EqualTo,Length
-from myProject.models import Client
+from wtforms.validators import DataRequired,Email,EqualTo
+from myProject.models import Client,Translator
 
-def check_email(form, field):
+def check_email_client(form, field):
     if Client.query.filter_by(email=field.data).first():
         raise ValidationError('Email already registered.')
+
+def check_email_translator(form, field):
+    if Translator.query.filter_by(email=field.data).first():
+        raise ValidationError('Email already registered.')
+
+# class notEqualTo():
+
+#     def __init__(self,field1,field2):
+#         self.field1 = field1
+#         self.field12 = field2
+
+#     def __call__(self,form,field):
+#         if(self.field1.data == self.field2.data):
+#             raise ValidationError('These fields can not be the same.')
+        
+
+def languageNotEqualTo(form,field):
+    if field.data == form.language_from.data:
+        raise ValidationError('These fields can not be the same.')
 
 class LoginForm(FlaskForm):
     email = StringField('Email',validators=[DataRequired(),Email()])
@@ -15,7 +34,7 @@ class LoginForm(FlaskForm):
 
 class RegisterationForm(FlaskForm):
     name = StringField('Name',validators=[DataRequired()])
-    email = StringField('Email',validators=[DataRequired(),Email(),check_email])
+    email = StringField('Email',validators=[DataRequired(),Email(),check_email_client])
     password = PasswordField('Password',validators=[DataRequired(),EqualTo('pass_confirm')])
     pass_confirm = PasswordField('Confirm Password',validators=[DataRequired()])
     submit = SubmitField('Register')
@@ -31,19 +50,23 @@ class ChangePassForm(FlaskForm):
 
 class TranslationForm(FlaskForm):
     language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
-    language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
+    language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired(),languageNotEqualTo])
     deadline = RadioField("Deadline",choices=[(1,"next 2 hours"),(2,"Tomorrow before 9 am"),(3,"Tomorrow before 3 pm"),(4,"Day after tomorrow before 9 am")],validators=[DataRequired()])
     text = TextAreaField("Text for translation",validators=[DataRequired()])
-    price = IntegerField("Your Price",validators=[DataRequired()])
+    submit = SubmitField('editPrice')
+
+class GetPriceForm(FlaskForm):
+    price = IntegerField("Price",validators=[DataRequired()])
     submit = SubmitField('Make Request')
 
 class RegisterTranslator(FlaskForm):
     name = StringField('Name',validators=[DataRequired()])
-    email = StringField('Email',validators=[DataRequired(),Email(),check_email])
+    email = StringField('Email',validators=[DataRequired(),Email(),check_email_translator])
     password = PasswordField('Password',validators=[DataRequired(),EqualTo('pass_confirm')])
     pass_confirm = PasswordField('Confirm Password',validators=[DataRequired()])
-    language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
-    language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
-    min_price = IntegerField("Min Price",validators=[DataRequired()])
-    target_price = IntegerField("Target Price",validators=[DataRequired()])
+    is_human = SelectField("Is Human", choices=[(True,"Yes"),(False,'No')])
+    # language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
+    # language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
+    # min_price = IntegerField("Min Price",validators=[DataRequired()])
+    # target_price = IntegerField("Target Price",validators=[DataRequired()])
     submit = SubmitField('Register')
