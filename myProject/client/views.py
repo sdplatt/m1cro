@@ -93,7 +93,7 @@ def home():
     getPriceForm = GetPriceForm()
     if getPriceForm.validate_on_submit():
         translation = Translation.query.get(my_translation['id'])
-        translation.price = getPriceForm.price.data
+        translation.postProcess(getPriceForm.price.data)
         db.session.commit()
         session['popup'] = False
         my_translation = None
