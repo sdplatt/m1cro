@@ -164,6 +164,7 @@
             <p><span class="fw-bold">From:</span> {{service.language_from}} To {{service.language_to}}</p>
             <p><span class="fw-bold">Price:</span> ${{service.min_price}}</p>
             <p><span class="fw-bold">Text:</span> {{service.target_price}}</p>
+            <p><span class="fw-bold">Deadline:</span> {{service.deadline}}</p>
         </div>
         {% endfor %}
     </div>
@@ -185,6 +186,10 @@
             <div class="mb-3">
                 {{addServiceForm.target_price.label(class='form-label')}}
                 {{addServiceForm.target_price(class='form-control',rows=10)}}
+            </div>
+            <div class="mb-3">
+                {{addServiceForm.deadline.label(class='form-label')}}
+                {{addServiceForm.deadline(class='form-control radio-form',rows=10)}}
             </div>
             <div class="mb-3">
                 {{addServiceForm.submit(class='btn btn-success')}}

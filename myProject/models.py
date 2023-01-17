@@ -78,16 +78,18 @@ class Service(db.Model,UserMixin):
     language_to = db.Column(db.String)
     min_price = db.Column(db.Integer)
     target_price = db.Column(db.Integer)
+    deadline = db.Column(db.Integer)
     translatorId = db.Column(db.Integer,db.ForeignKey('translators.id'))
 
     __table_args__=(db.UniqueConstraint('language_from',"language_to","translatorId",name="from_to"),)
 
-    def __init__(self,l_from,l_to,min_price,target_price,translator):        
+    def __init__(self,l_from,l_to,min_price,target_price,translator,deadline):        
         self.language_from= l_from
         self.language_to = l_to
         self.min_price = min_price
         self.target_price = target_price
         self.translatorId=translator
+        self.deadline = deadline
 
 class Translator(db.Model,UserMixin):
 

@@ -68,16 +68,17 @@ def home():
     # ADD SERVICE FORM
     addServiceForm = AddServiceForm()
     if addServiceForm.validate_on_submit():
-        # try:
+        try:
             service = Service(l_from=addServiceForm.language_from.data,
                         l_to=addServiceForm.language_to.data,
                         min_price=addServiceForm.min_price.data,
                         target_price=addServiceForm.target_price.data,
+                        deadline=addServiceForm.deadline.data,
                         translator=session.get('id'))
             db.session.add(service)
             db.session.commit()
-        # except:
-        #     return redirect(url_for('translator.home'))
+        except:
+            return redirect(url_for('translator.home'))
     # USERS TABLE
     users = Translator.query.all()
 

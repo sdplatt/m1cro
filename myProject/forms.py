@@ -61,4 +61,5 @@ class AddServiceForm(FlaskForm):
     language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired(),languageNotEqualTo])
     min_price = IntegerField("Min Price",validators=[DataRequired()])
     target_price = IntegerField("Target Price",validators=[DataRequired()])
+    deadline = RadioField("Deadline",choices=[(1,"next 2 hours"),(2,"Tomorrow before 9 am"),(3,"Tomorrow before 3 pm"),(4,"Day after tomorrow before 9 am")],validators=[DataRequired()])
     submit = SubmitField('Add Service')
