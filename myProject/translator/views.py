@@ -5,6 +5,7 @@ from myProject import db,mail
 from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
+from datetime import datetime, timedelta
 
 translator = Blueprint('translator',__name__,url_prefix='/translator')
 myUser = None
@@ -41,6 +42,10 @@ def home():
                 next = url_for('translator.home')
 
             session['user'] = 'translator'
+            print(session.get('translator_page'))
+            if(session.get('translator_page')!='accept'):
+                session['translator_page']='services'
+            print(session.get('translator_page'))
             
             return redirect(next)
         else:
@@ -93,6 +98,7 @@ def home():
 @translator.route('/logout')
 def logout():
     session['user'] = None
+    session['page'] = 'login'
     logout_user()
     session[id] = None
     return redirect(url_for('translator.home'))
@@ -127,3 +133,27 @@ def change(id):
         return render_template('change-pass.html',changePassForm=changePassForm,user=user)
     else:
         return "Page Not Found"
+
+@translator.route('/accept-page/<translationId>',methods=['GET','POST'])
+def accept_page(translationId):
+    translation = Translation.query.get(translationId)
+    if(translation.translatorId):
+        return "Sorry! The translation has already been allotted"
+    else:
+        
+        if session.get('user') != 'translator':
+            session['translator_page'] = 'accept'
+        else:
+            session['translator_page'] = 'services'
+        return redirect(url_for('translator.home'))
+
+@translator.route('/accept/<translationId>/<translatorId>')
+def accept_translation(translationId,translatorId):
+    translation = Translation.query.get(translationId)
+    translation.translatorId=translatorId
+    db.session.commit()
+    return redirect(url_for('translator.home'))
+
+@translator.route('/reject')
+def reject_translation():
+    return redirect(url_for('translator.home'))

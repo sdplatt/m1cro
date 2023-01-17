@@ -113,6 +113,7 @@
     {%endif%}
 </div>
 {%else%}
+{%if session['translator_page'] == "services"%}
 <style>
     .radio-form{
         list-style: none;
@@ -197,5 +198,30 @@
         </form>
     </div>
 </div>
+{%elif session['translator_page'] == 'accept' %}:
+<style>
+    .page{
+        height: 90vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .details{
+        padding: 2rem;
+        border-radius: 8px;
+        background-color: rgb(138 205 181);
+    }
+</style>
+<div class="page">
+    <div class="details">
+        <h4>Task: {{translation.language_from}} to {{translation.language_to}}</h4>
+        <h4>Price: {{translation.price}}</h4>
+        <h4>Deadline: {{deadline}}</h4>
+        <p>{{translation.text}}</p>
+        {%print(current_user.id)%}
+    </div>
+</div>
+{%endif%}
 {%endif%}
 {% endblock %}

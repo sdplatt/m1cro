@@ -5,6 +5,7 @@ from myProject import db,mail
 from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
+from datetime import datetime, timedelta
 
 client = Blueprint('client',__name__)
 my_translation = None
@@ -87,7 +88,7 @@ def home():
             db.session.commit()
             session['error'] = None
             session['popup'] = True
-            my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text[:150]}
+            my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text}
         return redirect(url_for('client.home'))
 
     getPriceForm = GetPriceForm()
@@ -95,6 +96,26 @@ def home():
         translation = Translation.query.get(my_translation['id'])
         translation.postProcess(getPriceForm.price.data)
         db.session.commit()
+        now = datetime.utcnow()
+        deadline = now + timedelta(minutes=int(my_translation['deadline'])*30)
+        words = len(my_translation['text'].split(' '))
+        msg = Message(
+            'Hello',
+            sender ='bansalpushkar100@gmail.com',
+            recipients = ['bansalpushkar99@gmail.com',"random@gmail.com"]
+            )
+        msg.html = f'''
+        Client's Email: {current_user.email} <br>
+        Translation: {my_translation['language_from']} to {my_translation['language_to']} <br>
+        Price: {getPriceForm.price.data} <br>
+        Total words: {words} <br>
+        Deadline: {deadline} <br>
+        <br>
+        <p>
+        Click <a href="{request.base_url}translator/accept-page/{my_translation['id']}">here</a> to accept or reject the translation.
+        </p>
+        '''
+        mail.send(msg)
         session['popup'] = False
         my_translation = None
         return redirect(url_for('client.home'))
