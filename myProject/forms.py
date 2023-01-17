@@ -54,7 +54,6 @@ class RegisterTranslator(FlaskForm):
     email = StringField('Email',validators=[DataRequired(),Email(),check_email_translator])
     password = PasswordField('Password',validators=[DataRequired(),EqualTo('pass_confirm')])
     pass_confirm = PasswordField('Confirm Password',validators=[DataRequired()])
-    is_human = SelectField("Is Human", choices=[(True,"Yes"),(False,'No')])
     submit = SubmitField('Register')
 
 class AddServiceForm(FlaskForm):
