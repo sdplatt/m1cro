@@ -113,7 +113,26 @@
     {%endif%}
 </div>
 {%else%}
-{%if session['translator_page'] == "services"%}
+<style>
+    .nav-bar{
+        display: flex;
+        padding: 23px;
+        padding-top: 0;
+        justify-content: center;
+    }
+    .nav-bar a{
+        text-decoration: none;
+        cursor: pointer;
+        color: green;
+        /* font-weight: bold; */
+        font-size: 18px;
+    }
+</style>
+<div class="nav-bar">
+    <span class="mx-3"><a href="/translator/logout">Logout</a></span>
+    <span class="mx-3"><a href="/translator/services">Services</a></span>
+    <span class="mx-3"><a href="/translator/translations">My Translations</a></span>
+</div>
 <style>
     .radio-form{
         list-style: none;
@@ -156,7 +175,7 @@
         margin-block-end:0.4rem ;
     }
 </style>
-<p><a href="logout">Logout</a></p>
+{%if session['translator_page'] == "services"%}
 <div class="translations my-4">
     <div class="all-translations">
         <div class="all-heading py-2"><h4 class="text-center">All Services</h4></div>
@@ -196,6 +215,38 @@
                 {{addServiceForm.submit(class='btn btn-success')}}
             </div>
         </form>
+    </div>
+</div>
+{%elif session['translator_page'] == 'translations'%}
+<div class="translations my-4">
+    <div class="all-translations">
+        {% for translation in session['translations'] %}
+        <a href="{{url_for('translator.show_translation',id=translation.id)}}" class="text-decoration-none text-black">
+            <div class="translation px-4 py-3">
+                <p><span class="fw-bold">From:</span> {{translation.language_from}} To {{translation.language_to}}</p>
+                <p><span class="fw-bold">Price:</span> ${{translation.price}}</p>
+                <p><span class="fw-bold">Text:</span> {{translation.text[:80]}}...</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    <div class="new-translation p-4">
+        <div class="tranlation-details">
+            <p>Text: {{session['trans-page'].text}}</p>            
+            <p>Status: {{session['trans-page'].status}}</p>
+            <p>Deadline: {{session['trans-page'].deadline}}</p>
+
+            <form action="" method="POST">
+                {{submitTranslationForm.hidden_tag()}}
+            <div class="mb-3">
+                {{submitTranslationForm.translation.label(class='form-label')}}
+                {{submitTranslationForm.translation(class='form-control',rows=10)}}
+            </div>
+            <div class="mb-3">
+                {{submitTranslationForm.submit(class='btn btn-primary')}}
+            </div>
+            </form>
+        </div>
     </div>
 </div>
 {%elif session['translator_page'] == 'accept' %}:

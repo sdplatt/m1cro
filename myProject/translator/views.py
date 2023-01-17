@@ -1,6 +1,6 @@
 from flask import redirect,url_for,render_template,request,Blueprint,session
 from myProject.models import Translation,Translator,Service
-from myProject.forms import LoginForm,ForgotPassForm,ChangePassForm,RegisterTranslator,AddServiceForm
+from myProject.forms import LoginForm,ForgotPassForm,ChangePassForm,RegisterTranslator,AddServiceForm,SubmitTranslationForm
 from myProject import db,mail
 from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
@@ -36,7 +36,7 @@ def home():
         if user is not None and user.check_password(loginForm.password.data):
             login_user(user)
             myUser = user
-            session['id'] = current_user.id
+            session['translatorId'] = current_user.id
             next = request.args.get('next')
             if next == None or not next[0] == '/':
                 next = url_for('translator.home')
@@ -77,26 +77,35 @@ def home():
                         min_price=addServiceForm.min_price.data,
                         target_price=addServiceForm.target_price.data,
                         deadline=addServiceForm.deadline.data,
-                        translator=session.get('id'))
+                        translator=session.get('translatorId'))
             db.session.add(service)
             db.session.commit()
         except:
             return redirect(url_for('translator.home'))
+
+    # SUBMIT TRANSLATION FORM
+    submitTranslationForm = SubmitTranslationForm()
+    if(submitTranslationForm.validate_on_submit()):
+        translation = Translation.query.get(session['trans-page'].id)
+        translation.translation = submitTranslationForm.translation.data
+        db.session.commit()
     # USERS TABLE
     users = Translator.query.all()
 
     # SERVICES
     try:
-        services = Translator.query.filter_by(id=session.get('id')).first().services
+        services = Translator.query.filter_by(id=session.get('translatorId')).first().services
     except:
         services = []
     
-    return render_template('translator.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,user=myUser,services=services,addServiceForm=addServiceForm)
+    return render_template('translator.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,user=myUser,services=services,addServiceForm=addServiceForm,submitTranslationForm=submitTranslationForm)
 
 @translator.route('/logout')
 def logout():
     session['user'] = None
     session['page'] = 'login'
+    session['translator_page'] = None
+    session['translations'] = None
     logout_user()
     session[id] = None
     return redirect(url_for('translator.home'))
@@ -158,3 +167,31 @@ def reject_translation():
     session['translator_page'] = 'services'
     session['translation'] = None
     return redirect(url_for('translator.home'))
+
+@translator.route('/translations')
+def translations():
+    id = session.get('translatorId')
+    translations = Translator.query.get(id).translations
+    session['trans-page'] = translations[0].id
+    session['translator_page']='translations'
+    my_translations = []
+    for translation in translations:
+        now = datetime.utcnow()
+        deadline = now + timedelta(minutes=int(translation.deadline)*30)
+        my_translations.append({"id":translation.id,"language_from":translation.language_from,"language_to":translation.language_to,'price':translation.price,"deadline":deadline,"text":translation.text})
+    
+    session['translations'] = my_translations
+    return redirect(url_for('translator.home'))
+
+@translator.route('/translation/<id>')
+def show_translation(id):
+    translation = Translation.query.filter_by(id=id).first()
+    session['trans-page'] = translation
+    return redirect(url_for('translator.home'))
+
+@translator.route('/services')
+def services():
+    session['translator_page']='services'
+    session['translations'] = None
+    return redirect(url_for('translator.home'))
+
