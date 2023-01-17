@@ -215,11 +215,12 @@
 </style>
 <div class="page">
     <div class="details">
-        <h4>Task: {{translation.language_from}} to {{translation.language_to}}</h4>
-        <h4>Price: {{translation.price}}</h4>
-        <h4>Deadline: {{deadline}}</h4>
-        <p>{{translation.text}}</p>
-        {%print(current_user.id)%}
+        <h4>Task: {{session['translation']['language_from']}} to {{session['translation']['language_to']}}</h4>
+        <h4>Price: {{session['translation']['price']}}</h4>
+        <h4>Deadline: {{session['translation']['deadline']}}</h4>
+        <p>{{session['translation']['text']}}</p>
+        <a href="/translator/accept/{{session['translation']['id']}}/{{current_user.id}}" class="btn btn-info text-white">Accept</a>
+        <a href="/translator/reject" class="btn btn-danger">Reject</a>
     </div>
 </div>
 {%endif%}

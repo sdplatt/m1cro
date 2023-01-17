@@ -42,10 +42,8 @@ def home():
                 next = url_for('translator.home')
 
             session['user'] = 'translator'
-            print(session.get('translator_page'))
             if(session.get('translator_page')!='accept'):
                 session['translator_page']='services'
-            print(session.get('translator_page'))
             
             return redirect(next)
         else:
@@ -140,11 +138,10 @@ def accept_page(translationId):
     if(translation.translatorId):
         return "Sorry! The translation has already been allotted"
     else:
-        
-        if session.get('user') != 'translator':
-            session['translator_page'] = 'accept'
-        else:
-            session['translator_page'] = 'services'
+        now = datetime.utcnow()
+        deadline = now + timedelta(minutes=int(translation.deadline)*30)
+        session['translation'] = {"id":translation.id,"language_from":translation.language_from,"language_to":translation.language_to,'price':translation.price,"deadline":deadline,"text":translation.text}
+        session['translator_page'] = 'accept'
         return redirect(url_for('translator.home'))
 
 @translator.route('/accept/<translationId>/<translatorId>')
@@ -152,8 +149,12 @@ def accept_translation(translationId,translatorId):
     translation = Translation.query.get(translationId)
     translation.translatorId=translatorId
     db.session.commit()
+    session['translator_page'] = 'services'
+    session['translation'] = None
     return redirect(url_for('translator.home'))
 
 @translator.route('/reject')
 def reject_translation():
+    session['translator_page'] = 'services'
+    session['translation'] = None
     return redirect(url_for('translator.home'))
