@@ -46,7 +46,7 @@
         {% if session['page'] == 'register' %}
         <div class="register-form">
             <h3 class="text-center mb-3">Registeration Form</h3>
-            <form method="POST">
+            <form method="POST" id="register-form">
                 {{registerForm.hidden_tag()}}
                 <div class="mb-3">
                     {{registerForm.email.label(class='form-label')}}
@@ -58,16 +58,33 @@
                 </div>
                 <div class='mb-3'>
                     {{registerForm.password.label(class='form-label')}}
-                    {{registerForm.password(class='form-control')}}
+                    {{registerForm.password(class='form-control',id="password_register")}}
                 </div>
                 <div class='mb-3'>
                     {{registerForm.pass_confirm.label(class='form-label')}}
-                    {{registerForm.pass_confirm(class='form-control')}}
+                    {{registerForm.pass_confirm(class='form-control',id="pass_confirm_register")}}
                 </div>
-                {{registerForm.submit(class='btn btn-primary')}}
+                <p id="register-error" class="text-danger">
+                    {%if(session['email-exists'])%}
+                    Email Already in Use
+                    {%endif%}
+                </p>
+                <button class='btn btn-primary' type="button" onclick="handleRegister()">Register</button>
             </form>
             <a href="/translator/login">Login</a>
         </div>
+        <script>
+            const registerForm = document.getElementById('register-form')
+            const handleRegister = ()=>{
+                const password_register = document.getElementById('password_register')
+                const pass_confirm_register = document.getElementById('pass_confirm_register')
+                if(password_register.value != pass_confirm_register.value){
+                    document.getElementById('register-error').innerText = "Passwords don't match"
+                }else{
+                    registerForm.submit()
+                }
+            }
+        </script>
         {% elif session['page'] == 'login' %}
         <div class="login-form">
             <h3 class="text-center mb-3">Login Form</h2>

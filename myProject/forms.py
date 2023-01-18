@@ -24,7 +24,7 @@ class LoginForm(FlaskForm):
 
 class RegisterationForm(FlaskForm):
     name = StringField('Name',validators=[DataRequired()])
-    email = StringField('Email',validators=[DataRequired(),Email(),check_email_client])
+    email = StringField('Email',validators=[DataRequired(),Email()])
     password = PasswordField('Password',validators=[DataRequired(),EqualTo('pass_confirm')])
     pass_confirm = PasswordField('Confirm Password',validators=[DataRequired()])
     submit = SubmitField('Register')
@@ -51,7 +51,7 @@ class GetPriceForm(FlaskForm):
 
 class RegisterTranslator(FlaskForm):
     name = StringField('Name',validators=[DataRequired()])
-    email = StringField('Email',validators=[DataRequired(),Email(),check_email_translator])
+    email = StringField('Email',validators=[DataRequired(),Email()])
     password = PasswordField('Password',validators=[DataRequired(),EqualTo('pass_confirm')])
     pass_confirm = PasswordField('Confirm Password',validators=[DataRequired()])
     submit = SubmitField('Register')

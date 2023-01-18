@@ -17,14 +17,19 @@ def home():
     # REGISTERATION FORM
     registerForm = RegisterationForm()
     if registerForm.validate_on_submit():
-        user = Client(name=registerForm.name.data,
+        try:
+            user = Client(name=registerForm.name.data,
                     email=registerForm.email.data,
                     password=registerForm.password.data)
 
-        db.session.add(user)
-        db.session.commit()
-        session['page'] = 'login'
-        return redirect(url_for('client.home'))
+            db.session.add(user)
+            db.session.commit()
+            if(session.get('email-exists')):
+                session['email-exists'] = False
+            session['page'] = 'login'
+        except:
+            session['email-exists'] = True
+            return redirect(url_for('client.home'))
 
     # LOGIN FORM
     loginForm = LoginForm()
@@ -149,6 +154,7 @@ def login():
 @client.route('/register')
 def register():
     session['page'] = 'register'
+    session['email-exists'] = False
     return redirect(url_for('client.home'))
 
 # @client.route('/price-popup')

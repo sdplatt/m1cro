@@ -98,13 +98,13 @@ class Translator(db.Model,UserMixin):
 
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String)
-    email = db.Column(db.String, unique=True,index=True)
+    email = db.Column(db.String, unique=True)
     password = db.Column(db.String)
     change_pass = db.Column(db.String,unique=True)
     is_human = db.Column(db.Boolean)
     translations = db.relationship('Translation',backref="translator",lazy=True)
     services = db.relationship('Service',backref="translator",lazy=True)
-    rating = db.Column(db.Float())
+    rating = db.Column(db.Float(),default=0)
     rating_count = db.Column(db.Integer,default=0)
 
     def __init__(self,name,email,password,is_human):

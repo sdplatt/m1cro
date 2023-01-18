@@ -17,14 +17,19 @@ def home():
     # REGISTERATION FORM
     registerForm = RegisterTranslator()
     if registerForm.validate_on_submit():
-        user = Translator(name=registerForm.name.data,
+        try:
+            user = Translator(name=registerForm.name.data,
                     email=registerForm.email.data,
                     password=registerForm.password.data,
-                    is_human=True)
+                    is_human=True)        
 
-        db.session.add(user)
-        db.session.commit()
-        session['page'] = 'login'
+            db.session.add(user)
+            db.session.commit()
+            if(session.get('email-exists')):
+                session['email-exists'] = False
+            session['page'] = 'login'
+        except:
+            session['email-exists'] = True
         return redirect(url_for('translator.home'))
 
     # LOGIN FORM
@@ -124,6 +129,7 @@ def login():
 @translator.route('/register')
 def register():
     session['page'] = 'register'
+    session['email-exists'] = False
     return redirect(url_for('translator.home'))
 
 
