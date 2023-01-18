@@ -89,6 +89,7 @@ def home():
         translation = Translation.query.get(session['trans-page'].id)
         translation.translation = submitTranslationForm.translation.data
         db.session.commit()
+        return redirect(url_for('translator.show_translation',id=translation.id))
     # USERS TABLE
     users = Translator.query.all()
 
@@ -158,21 +159,21 @@ def accept_translation(translationId,translatorId):
     translation = Translation.query.get(translationId)
     translation.translatorId=translatorId
     db.session.commit()
-    session['translator_page'] = 'services'
+    session['translator_page'] = 'translations'
     session['translation'] = None
-    return redirect(url_for('translator.home'))
+    return redirect(url_for('translator.translations'))
 
 @translator.route('/reject')
 def reject_translation():
-    session['translator_page'] = 'services'
+    session['translator_page'] = 'translations'
     session['translation'] = None
-    return redirect(url_for('translator.home'))
+    return redirect(url_for('translator.translations'))
 
 @translator.route('/translations')
 def translations():
     id = session.get('translatorId')
     translations = Translator.query.get(id).translations
-    session['trans-page'] = translations[0].id
+    session['trans-page'] = translations[0]
     session['translator_page']='translations'
     my_translations = []
     for translation in translations:
@@ -194,4 +195,3 @@ def services():
     session['translator_page']='services'
     session['translations'] = None
     return redirect(url_for('translator.home'))
-

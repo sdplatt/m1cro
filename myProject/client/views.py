@@ -102,9 +102,12 @@ def home():
         msg = Message(
             'Hello',
             sender ='bansalpushkar100@gmail.com',
-            recipients = ['bansalpushkar99@gmail.com',"random@gmail.com"]
+            recipients = ['publicvince102@gmail.com','derapplikant@protonmail.com']
             )
         msg.html = f'''
+        <h3>Text</h3>
+        <p>{my_translation['text']}</p>
+        <h3>More Details: </h3>
         Client's Email: {current_user.email} <br>
         Translation: {my_translation['language_from']} to {my_translation['language_to']} <br>
         Price: {getPriceForm.price.data} <br>
@@ -183,10 +186,28 @@ def create_translation():
 @client.route('/translation/<id>')
 def show_translation(id):
     translation = Translation.query.filter_by(id=id).first()
+    try:
+        translation.email = translation.translator.email
+    except:
+        translation.email = None
     session['trans-page'] = translation
     return redirect(url_for('client.home'))
 
+@client.route('/rating/<id>',methods=['GET','POST'])
+def submit_review(id):
+    translation = Translation.query.get(id)
+    rating = int(request.form.get('rating'))
+    translation.rating = rating
+    translator_rating = translation.translator.rating or 0
+    rating_count = translation.translator.rating_count or 0
+    translation.translator.rating_count=rating_count+1
+    new_rating = (translator_rating + rating)/(rating_count+1)
+    translation.translator.rating = new_rating
+    db.session.commit()
+    return redirect(url_for('client.show_translation',id=translation.id))
+
 # @client.route('/test')
 # def delete_trans():
-    # translations = Service.query.delete()
+#     translation = Translation.query.get(10)
+#     return str(translation.translator.rating)
     # db.session.commit()

@@ -135,6 +135,16 @@
         border-top: 1px solid rgba(0, 0, 0, 0.14);
         border-bottom: 1px solid rgba(0, 0, 0, 0.14);
         min-height: 80vh;
+        position: relative;
+    }
+    .translated-text{
+        position: absolute;
+        bottom: 25px;
+        right: 22px;
+        width: 70%;        
+    }
+    .translated-text textarea{
+        min-height: 180px;
     }
     .all-heading{
         border-bottom: 1px solid rgba(0, 0, 0, 0.14);
@@ -169,8 +179,34 @@
         <div class="tranlation-details">
             <p>{{session['trans-page'].text}}</p>            
             <p>Status: {{session['trans-page'].status}}</p>
-            <p>Translator: Not done yet!</p>
+            <p>Translator: {{session['trans-page'].email or "Not assigned yet"}}</p>
             <p>Deadline: {{session['trans-page'].deadline}}</p>
+            {% if session['trans-page'].email%}
+            <div class="translated-text">
+                <textarea type="textarea" readonly class="form-control">{{session['trans-page'].translation or 'No translation yet'}}</textarea>
+            {%if session['trans-page'].translation and not session['trans-page'].rating %}
+            <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='stars.css') }}">
+                <form action="/rating/{{session['trans-page'].id}}" class="mt-3" method="POST" >
+                    <fieldset class="starability-coinFlip">
+                        <input type="radio" id="no-rate" class="input-no-rate" name="rating" value="0" checked aria-label="No rating." />
+                        <input type="radio" id="first-rate1" name="rating" value="1" />
+                        <label for="first-rate1" title="Terrible">1 star</label>
+                        <input type="radio" id="first-rate2" name="rating" value="2" />
+                        <label for="first-rate2" title="Not good">2 stars</label>
+                        <input type="radio" id="first-rate3" name="rating" value="3" />
+                        <label for="first-rate3" title="Average">3 stars</label>
+                        <input type="radio" id="first-rate4" name="rating" value="4" />
+                        <label for="first-rate4" title="Very good">4 stars</label>
+                        <input type="radio" id="first-rate5" name="rating" value="5" />
+                        <label for="first-rate5" title="Amazing">5 stars</label>
+                      </fieldset>
+                      <button class="btn btn-success mt-2">Submit</button>
+                </form>
+            {%elif session['trans-page'].translation and session['trans-page'].rating%}
+            <p>Rating: {{session['trans-page'].rating}}</p>
+            {%endif%}
+            </div>
+            {%endif%}
         </div>
         {%else%}
         <form method="post">
@@ -214,7 +250,7 @@
     }
     .popup-content{
         width: 450px;
-        height: 300px;
+        min-height: 300px;
         background-color: white;
         z-index: 2;
         border-radius: 10px;

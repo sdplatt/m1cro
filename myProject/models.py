@@ -47,6 +47,7 @@ class Translation(db.Model,UserMixin):
     price = db.Column(db.Integer)
     translation = db.Column(db.String)
     translatorId = db.Column(db.Integer,db.ForeignKey('translators.id'))
+    rating = db.Column(db.Float())
 
     def __init__(self,client_id,l_from,l_to,deadline,text,statusId):
         self.client_id = client_id
@@ -103,7 +104,9 @@ class Translator(db.Model,UserMixin):
     is_human = db.Column(db.Boolean)
     translations = db.relationship('Translation',backref="translator",lazy=True)
     services = db.relationship('Service',backref="translator",lazy=True)
-    
+    rating = db.Column(db.Float())
+    rating_count = db.Column(db.Integer,default=0)
+
     def __init__(self,name,email,password,is_human):
         self.name = name
         self.email = email
