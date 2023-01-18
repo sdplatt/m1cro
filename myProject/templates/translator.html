@@ -208,34 +208,52 @@
         {% endfor %}
     </div>
     <div class="new-translation p-4">        
-        <form method="post">
+        <form method="post" id="create-service">
             {{addServiceForm.hidden_tag()}}
             <div class="mb-3">
                 {{addServiceForm.language_from.label(class='form-label')}}
-                {{addServiceForm.language_from(class='form-control')}}
+                {{addServiceForm.language_from(class='form-control',id="language_from")}}
             </div>
             <div class="mb-3">
                 {{addServiceForm.language_to.label(class='form-label')}}
-                {{addServiceForm.language_to(class='form-control')}}
+                {{addServiceForm.language_to(class='form-control',id="language_to")}}
             </div>
             <div class="mb-3">
                 {{addServiceForm.min_price.label(class='form-label')}}
-                {{addServiceForm.min_price(class='form-control radio-form')}}
+                {{addServiceForm.min_price(class='form-control radio-form',id="min_price")}}
             </div>
             <div class="mb-3">
                 {{addServiceForm.target_price.label(class='form-label')}}
-                {{addServiceForm.target_price(class='form-control',rows=10)}}
+                {{addServiceForm.target_price(class='form-control',id="target_price")}}
             </div>
             <div class="mb-3">
                 {{addServiceForm.deadline.label(class='form-label')}}
                 {{addServiceForm.deadline(class='form-control radio-form',rows=10)}}
             </div>
+            <p id="service-error" class="text-danger"></p>
             <div class="mb-3">
-                {{addServiceForm.submit(class='btn btn-success')}}
+                <button class='btn btn-success' type="button" onclick="createService()">Create</button>
             </div>
         </form>
     </div>
 </div>
+<script>
+    const createServiceForm = document.getElementById('create-service')
+    const createService = () => {
+        const language_from = document.getElementById('language_from')
+        const language_to = document.getElementById('language_to')
+        const minPrice = document.getElementById('min_price')
+        const targetPrice = document.getElementById('target_price')
+        if(language_from.value == language_to.value){
+            document.getElementById('service-error').innerText="Language from and Langauge to cannot be same."
+        }
+        else if(minPrice.value>targetPrice.value){
+            document.getElementById('service-error').innerText="Target Price must be greater than or equal to min price."
+        }else{
+            createServiceForm.submit()
+        }
+    }
+</script>
 {%elif session['translator_page'] == 'translations'%}
 <div class="translations my-4">
     <div class="all-translations">

@@ -250,28 +250,50 @@
             {%endif%}
         </div>
         {%else%}
-        <form method="post">
+        <form method="post" id="create-translation">
             {{translationForm.hidden_tag()}}
             <div class="mb-3">
                 {{translationForm.language_from.label(class='form-label')}}
-                {{translationForm.language_from(class='form-control')}}
+                {{translationForm.language_from(class='form-control',id="language_from")}}
             </div>
             <div class="mb-3">
                 {{translationForm.language_to.label(class='form-label')}}
-                {{translationForm.language_to(class='form-control')}}
+                {{translationForm.language_to(class='form-control',id="language_to")}}
             </div>
             <div class="mb-3">
                 {{translationForm.deadline.label(class='form-label')}}
                 {{translationForm.deadline(class='form-control radio-form')}}
             </div>
             <div class="mb-3">
-                {{translationForm.text.label(class='form-label')}}
-                {{translationForm.text(class='form-control',rows=10)}}
+                {{translationForm.text.label(class='form-label')}} <span id="word-count" class="ms-2 text-secondary"></span>
+                {{translationForm.text(class='form-control',rows=10,id="translation-text")}}
             </div>
+            <p id="translation-error" class="text-danger"></p>
             <div class="mb-3">
-                {{translationForm.submit(class='btn btn-success')}}
+                <button class='btn btn-success' type="button" onclick="createTranslation()">getPrice</button>
             </div>
         </form>
+        <script>
+            const createTranslationForm = document.getElementById('create-translation')
+            const createTranslation = () => {
+                const language_from = document.getElementById('language_from')
+                const language_to = document.getElementById('language_to')
+                if(language_from.value == language_to.value){
+                    document.getElementById('translation-error').innerText="Language from and Langauge to cannot be same"
+                }else{
+                    createTranslationForm.submit()
+                }
+            }
+            const translationText = document.getElementById('translation-text')
+            translationText.addEventListener('input',()=>{
+                const text = translationText.value;
+                const words = text.split(' ').length
+                document.getElementById('word-count').innerText = words+" words"
+                if(words>350){
+                    document.getElementById('translation-error').innerText=`Word limit is 300 words. You wrote ${words} words`
+                }
+            })
+        </script>
         {%endif%}
     </div>
 </div>
@@ -305,16 +327,28 @@
             <li>Deadline: {{translation.deadline}}</li>
             <li>Text: {{translation.text[:150]}}...</li>
         </ul>
-        <form method="POST">
+        <form method="POST" id="add_price_form">
             {{getPriceForm.hidden_tag()}}
             <div class="mb-3">
                 {{getPriceForm.price.label(class='form-label')}}
-                {{getPriceForm.price(class='form-control')}}
+                {{getPriceForm.price(class='form-control',id="translation-price")}}
             </div>
-            {{getPriceForm.submit(class='btn btn-success')}}
+            <p id="error" class="text-danger"></p>
+            <button type="button" class="btn btn-success" onclick="addTranslationPrice()">Make Request</button>
         </form>
     </div>
 </div>
+<script>
+    const addPriceForm = document.getElementById('add_price_form')
+    const addTranslationPrice = ()=>{
+        const price = document.getElementById('translation-price').value
+        if(price>500 || price <0){
+            document.getElementById('error').innerText="Price must be between 0 and 500"
+        }else{
+            addPriceForm.submit()
+        }
+    }
+</script>
 {%endif%}
 {% endif %}
 

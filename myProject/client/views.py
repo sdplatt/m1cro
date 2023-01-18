@@ -77,8 +77,8 @@ def home():
         global my_translation
         text = translationForm.text.data
         words = len(text.split(' '))
-        if(words>300):
-            session['error'] = f'Word limit is 300. You used {words} words.'
+        if(words>350):
+            session['error'] = f'Word limit is 350. You used {words} words.'
         else:
             status = Status('new')
             db.session.add(status)
