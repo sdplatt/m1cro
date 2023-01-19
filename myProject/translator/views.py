@@ -49,10 +49,11 @@ def home():
             session['user'] = 'translator'
             if(session.get('translator_page')!='accept'):
                 session['translator_page']='services'
-            
+            if(session.get('invalid-login')):
+                session['invalid-login'] = False
             return redirect(next)
         else:
-            print("Invalid login details")
+            session['invalid-login'] = True
             return redirect(url_for('translator.home'))
 
     # Change Password Form
@@ -85,7 +86,10 @@ def home():
                         translator=session.get('translatorId'))
             db.session.add(service)
             db.session.commit()
+            if(session.get('service-exists')):
+                session['service-exists'] = False
         except:
+            session['service-exists'] = True
             return redirect(url_for('translator.home'))
 
     # SUBMIT TRANSLATION FORM
@@ -112,6 +116,7 @@ def logout():
     session['page'] = 'login'
     session['translator_page'] = None
     session['translations'] = None
+    session['service-exists'] = False
     logout_user()
     session[id] = None
     return redirect(url_for('translator.home'))
@@ -119,6 +124,8 @@ def logout():
 @translator.route('/forgot')
 def forgot():
     session['page'] = 'forgot'
+    if(session.get('invalid-login')):
+        session['invalid-login'] = False
     return redirect(url_for('translator.home'))
 
 @translator.route('/login')
@@ -130,6 +137,8 @@ def login():
 def register():
     session['page'] = 'register'
     session['email-exists'] = False
+    if(session.get('invalid-login')):
+        session['invalid-login'] = False
     return redirect(url_for('translator.home'))
 
 
@@ -177,6 +186,7 @@ def reject_translation():
 
 @translator.route('/translations')
 def translations():
+    session['service-exists'] = False
     id = session.get('translatorId')
     translations = Translator.query.get(id).translations
     session['trans-page'] = translations[0]

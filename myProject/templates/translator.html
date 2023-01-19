@@ -69,13 +69,14 @@
                     Email Already in Use
                     {%endif%}
                 </p>
-                <button class='btn btn-primary' type="button" onclick="handleRegister()">Register</button>
+                <button class='btn btn-primary'>Register</button>
             </form>
             <a href="/translator/login">Login</a>
         </div>
         <script>
             const registerForm = document.getElementById('register-form')
-            const handleRegister = ()=>{
+            registerForm.addEventListener('submit',(e)=>{
+                e.preventDefault()
                 const password_register = document.getElementById('password_register')
                 const pass_confirm_register = document.getElementById('pass_confirm_register')
                 if(password_register.value != pass_confirm_register.value){
@@ -83,7 +84,7 @@
                 }else{
                     registerForm.submit()
                 }
-            }
+            })
         </script>
         {% elif session['page'] == 'login' %}
         <div class="login-form">
@@ -98,6 +99,11 @@
                     {{loginForm.password.label(class='form-label')}}
                     {{loginForm.password(class='form-control')}}
                 </div>
+                <p id="login-error" class="text-danger">
+                    {%if(session['invalid-login'])%}
+                    Invalid Login Details
+                    {%endif%}
+                </p>
                 {{loginForm.submit(class='btn btn-primary mb-3')}}
             </form>
             <a href="/translator/forgot">Forgot Password</a>
@@ -201,8 +207,8 @@
         {% for service in services %}
         <div class="translation px-4 py-3">
             <p><span class="fw-bold">From:</span> {{service.language_from}} To {{service.language_to}}</p>
-            <p><span class="fw-bold">Price:</span> ${{service.min_price}}</p>
-            <p><span class="fw-bold">Text:</span> {{service.target_price}}</p>
+            <p><span class="fw-bold">Min-Price:</span> ${{service.min_price}}</p>
+            <p><span class="fw-bold">Target Price:</span> ${{service.target_price}}</p>
             <p><span class="fw-bold">Deadline:</span> {{service.deadline}}</p>
         </div>
         {% endfor %}
@@ -220,39 +226,48 @@
             </div>
             <div class="mb-3">
                 {{addServiceForm.min_price.label(class='form-label')}}
-                {{addServiceForm.min_price(class='form-control radio-form',id="min_price")}}
+                {{addServiceForm.min_price(class='form-control radio-form',id="min_price",max=20,min=0)}}
             </div>
             <div class="mb-3">
                 {{addServiceForm.target_price.label(class='form-label')}}
-                {{addServiceForm.target_price(class='form-control',id="target_price")}}
+                {{addServiceForm.target_price(class='form-control',id="target_price",max=20,min=0)}}
             </div>
             <div class="mb-3">
                 {{addServiceForm.deadline.label(class='form-label')}}
                 {{addServiceForm.deadline(class='form-control radio-form',rows=10)}}
             </div>
-            <p id="service-error" class="text-danger"></p>
+            <p id="service-error" class="text-danger">
+                {%if(session['service-exists'])%}
+                    Service is already Created.
+                {%endif%}
+            </p>
             <div class="mb-3">
-                <button class='btn btn-success' type="button" onclick="createService()">Create</button>
+                <button class='btn btn-success'>Create</button>
             </div>
         </form>
     </div>
 </div>
 <script>
     const createServiceForm = document.getElementById('create-service')
-    const createService = () => {
-        const language_from = document.getElementById('language_from')
-        const language_to = document.getElementById('language_to')
-        const minPrice = document.getElementById('min_price')
-        const targetPrice = document.getElementById('target_price')
-        if(language_from.value == language_to.value){
-            document.getElementById('service-error').innerText="Language from and Langauge to cannot be same."
+    createServiceForm.addEventListener('submit',(e)=>{
+        e.preventDefault()
+        const language_from = document.getElementById('language_from').value
+        const language_to = document.getElementById('language_to').value
+        const minPrice = document.getElementById('min_price').value
+        const targetPrice = document.getElementById('target_price').value
+        const error = document.getElementById('service-error')
+        if(language_from == language_to){
+            error.innerText="Language from and Langauge to cannot be same."
         }
-        else if(minPrice.value>targetPrice.value){
-            document.getElementById('service-error').innerText="Target Price must be greater than or equal to min price."
+        else if(minPrice==5 && targetPrice==10){
+            createServiceForm.submit()
+        }
+        else if(minPrice>targetPrice || (minPrice==10 && targetPrice==5)){
+            error.innerText="Target Price must be greater than or equal to min price."
         }else{
             createServiceForm.submit()
         }
-    }
+    })
 </script>
 {%elif session['translator_page'] == 'translations'%}
 <div class="translations my-4">

@@ -45,9 +45,11 @@ def home():
 
             session['trans-page'] = 'create'
             session['user'] = 'client'
+            if(session.get('invalid-login')):
+                session['invalid-login'] = False
             return redirect(next)
         else:
-            print("Invalid login details")
+            session['invalid-login'] = True
             return redirect(url_for('client.home'))
 
     # Change Password Form
@@ -144,6 +146,8 @@ def logout():
 @client.route('/forgot')
 def forgot():
     session['page'] = 'forgot'
+    if(session.get('invalid-login')):
+        session['invalid-login'] = False
     return redirect(url_for('client.home'))
 
 @client.route('/login')
@@ -155,6 +159,8 @@ def login():
 def register():
     session['page'] = 'register'
     session['email-exists'] = False
+    if(session.get('invalid-login')):
+        session['invalid-login'] = False
     return redirect(url_for('client.home'))
 
 # @client.route('/price-popup')

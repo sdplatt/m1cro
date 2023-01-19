@@ -2,6 +2,7 @@ from myProject import db,login_manager
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
 import uuid
+from datetime import datetime
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -48,6 +49,9 @@ class Translation(db.Model,UserMixin):
     translation = db.Column(db.String)
     translatorId = db.Column(db.Integer,db.ForeignKey('translators.id'))
     rating = db.Column(db.Float())
+    createdAt = db.Column(db.DateTime,default=datetime.utcnow)
+    acceptedAt = db.Column(db.DateTime)
+    submittedAt = db.Column(db.DateTime)
 
     def __init__(self,client_id,l_from,l_to,deadline,text,statusId):
         self.client_id = client_id

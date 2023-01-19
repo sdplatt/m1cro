@@ -41,7 +41,7 @@ class ChangePassForm(FlaskForm):
 class TranslationForm(FlaskForm):
     language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
     language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired(),languageNotEqualTo])
-    deadline = RadioField("Deadline",choices=[(1,"next 2 hours"),(2,"Tomorrow before 9 am"),(3,"Tomorrow before 3 pm"),(4,"Day after tomorrow before 9 am")],validators=[DataRequired()])
+    deadline = RadioField("Deadline",choices=[(1,"30 minutes"),(2,"60 minutes"),(3,"120 minutes"),(4,"180 minutes")],validators=[DataRequired()])
     text = TextAreaField("Text for translation",validators=[DataRequired()])
     submit = SubmitField('editPrice')
 
@@ -61,7 +61,7 @@ class AddServiceForm(FlaskForm):
     language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired(),languageNotEqualTo])
     min_price = IntegerField("Min Price",validators=[DataRequired()])
     target_price = IntegerField("Target Price",validators=[DataRequired()])
-    deadline = RadioField("Deadline",choices=[(1,"next 2 hours"),(2,"Tomorrow before 9 am"),(3,"Tomorrow before 3 pm"),(4,"Day after tomorrow before 9 am")],validators=[DataRequired()])
+    deadline = RadioField("Deadline",choices=[(1,"30 minutes"),(2,"60 minutes"),(3,"120 minutes"),(4,"180 minutes")],validators=[DataRequired()])
     submit = SubmitField('Add Service')
 
 class SubmitTranslationForm(FlaskForm):

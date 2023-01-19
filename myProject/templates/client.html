@@ -66,13 +66,14 @@
                     Email Already in Use
                     {%endif%}
                 </p>
-                <button class='btn btn-primary' type="button" onclick="handleRegister()">Register</button>
+                <button class='btn btn-primary'>Register</button>
             </form>
-            <a href="/translator/login">Login</a>
+            <a href="/login">Login</a>
         </div>
         <script>
             const registerForm = document.getElementById('register-form')
-            const handleRegister = ()=>{
+            registerForm.addEventListener('submit',(e)=>{
+                e.preventDefault()
                 const password_register = document.getElementById('password_register')
                 const pass_confirm_register = document.getElementById('pass_confirm_register')
                 if(password_register.value != pass_confirm_register.value){
@@ -80,32 +81,8 @@
                 }else{
                     registerForm.submit()
                 }
-            }
+            })
         </script>
-        <!-- <div class="register-form">
-            <h3 class="text-center mb-3">Registeration Form</h3>
-            <form method="POST">
-                {{registerForm.hidden_tag()}}
-                <div class="mb-3">
-                    {{registerForm.email.label(class='form-label')}}
-                    {{registerForm.email(class='form-control')}}
-                </div>
-                <div class='mb-3'>
-                    {{registerForm.name.label(class='form-label')}}
-                    {{registerForm.name(class='form-control')}}
-                </div>
-                <div class='mb-3'>
-                    {{registerForm.password.label(class='form-label')}}
-                    {{registerForm.password(class='form-control')}}
-                </div>
-                <div class='mb-3'>
-                    {{registerForm.pass_confirm.label(class='form-label')}}
-                    {{registerForm.pass_confirm(class='form-control')}}
-                </div>
-                {{registerForm.submit(class='btn btn-primary')}}
-            </form>
-            <a href="/login">Login</a>
-        </div> -->
         {% elif session['page'] == 'login' %}
         <div class="login-form">
             <h3 class="text-center mb-3">Login Form</h2>
@@ -119,6 +96,11 @@
                     {{loginForm.password.label(class='form-label')}}
                     {{loginForm.password(class='form-control')}}
                 </div>
+                <p id="login-error" class="text-danger">
+                    {%if(session['invalid-login'])%}
+                    Invalid Login Details
+                    {%endif%}
+                </p>
                 {{loginForm.submit(class='btn btn-primary mb-3')}}
             </form>
             <a href="/forgot">Forgot Password</a>
@@ -270,12 +252,13 @@
             </div>
             <p id="translation-error" class="text-danger"></p>
             <div class="mb-3">
-                <button class='btn btn-success' type="button" onclick="createTranslation()">getPrice</button>
+                <button class='btn btn-success'>getPrice</button>
             </div>
         </form>
         <script>
             const createTranslationForm = document.getElementById('create-translation')
-            const createTranslation = () => {
+            createTranslationForm.addEventListener('submit',(e)=>{
+                e.preventDefault()
                 const language_from = document.getElementById('language_from')
                 const language_to = document.getElementById('language_to')
                 if(language_from.value == language_to.value){
@@ -283,7 +266,7 @@
                 }else{
                     createTranslationForm.submit()
                 }
-            }
+            })
             const translationText = document.getElementById('translation-text')
             translationText.addEventListener('input',()=>{
                 const text = translationText.value;
@@ -340,14 +323,15 @@
 </div>
 <script>
     const addPriceForm = document.getElementById('add_price_form')
-    const addTranslationPrice = ()=>{
+    addPriceForm.addEventListener('submit',(e)=>{
+        e.preventDefault()
         const price = document.getElementById('translation-price').value
         if(price>500 || price <0){
             document.getElementById('error').innerText="Price must be between 0 and 500"
         }else{
             addPriceForm.submit()
         }
-    }
+    })
 </script>
 {%endif%}
 {% endif %}
