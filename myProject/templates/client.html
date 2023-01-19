@@ -201,9 +201,14 @@
         {%if session['trans-page']!=None and session['trans-page']!='create'%}
         <div class="tranlation-details">
             <p>{{session['trans-page'].text}}</p>            
-            <p>Status: {{session['trans-page'].status}}</p>
-            <p>Translator: {{session['trans-page'].email or "Not assigned yet"}}</p>
-            <p>Deadline: {{session['trans-page'].deadline}}</p>
+            <p><span class="fw-bold">Status:</span> {{session['trans-page'].status}}</p>
+            <p><span class="fw-bold">Translator:</span> {{session['trans-page'].email or "Not assigned yet"}}</p>
+            <p><span class="fw-bold">Deadline:</span> {{session['trans-page'].deadline}}</p>
+            <p><span class="fw-bold">Created At:</span> {{session['trans-page'].createdAt}}</p>
+            <p><span class="fw-bold">Accepted At:</span> {{session['trans-page'].acceptedAt or 'Not Accepted Yet'}}</p>
+            {%if session['trans-page'].translation and session['trans-page'].rating%}
+            <p><span class="fw-bold">Reviewed At:</span> {{session['trans-page'].submittedAt}}</p>
+            {%endif%}
             {% if session['trans-page'].email%}
             <div class="translated-text">
                 <textarea type="textarea" readonly class="form-control">{{session['trans-page'].translation or 'No translation yet'}}</textarea>
@@ -317,7 +322,7 @@
                 {{getPriceForm.price(class='form-control',id="translation-price")}}
             </div>
             <p id="error" class="text-danger"></p>
-            <button type="button" class="btn btn-success" onclick="addTranslationPrice()">Make Request</button>
+            <button class="btn btn-success" >Make Request</button>
         </form>
     </div>
 </div>

@@ -284,9 +284,11 @@
     </div>
     <div class="new-translation p-4">
         <div class="tranlation-details">
-            <p>Text: {{session['trans-page'].text}}</p>            
-            <p>Status: {{session['trans-page'].status}}</p>
-            <p>Deadline: {{session['trans-page'].deadline}}</p>
+            <p><span class="fw-bold">Text:</span> {{session['trans-page'].text}}</p>            
+            <p><span class="fw-bold">Status:</span> {{session['trans-page'].status}}</p>
+            <p><span class="fw-bold">Deadline:</span> {{session['trans-page'].deadline}}</p>
+            <p><span class="fw-bold">Created At:</span> {{session['trans-page'].createdAt}}</p>
+            <p><span class="fw-bold">Accepted At:</span> {{session['trans-page'].acceptedAt or 'Not Accepted Yet'}}</p>
             {%if not session['trans-page'].translation %}
                 <form action="" method="POST">
                     {{submitTranslationForm.hidden_tag()}}
@@ -299,8 +301,8 @@
                 </div>
                 </form>
             {%else%}
-            <p>Translation: {{session['trans-page'].translation}}</p>
-            <p>Rating: {{session['trans-page'].rating or 'No rating yet'}}</p>
+            <p><span class="fw-bold">Translation:</span> {{session['trans-page'].translation}}</p>
+            <p><span class="fw-bold">Rating:</span> {{session['trans-page'].rating or 'No rating yet'}}</p>
             {%endif%}
         </div>
     </div>

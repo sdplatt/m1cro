@@ -173,6 +173,7 @@ def accept_page(translationId):
 def accept_translation(translationId,translatorId):
     translation = Translation.query.get(translationId)
     translation.translatorId=translatorId
+    translation.acceptedAt=datetime.utcnow()
     db.session.commit()
     session['translator_page'] = 'translations'
     session['translation'] = None

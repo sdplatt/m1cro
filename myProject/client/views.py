@@ -215,6 +215,7 @@ def submit_review(id):
     translation.translator.rating_count=rating_count+1
     new_rating = (translator_rating + rating)/(rating_count+1)
     translation.translator.rating = new_rating
+    translation.submittedAt=datetime.utcnow()
     db.session.commit()
     return redirect(url_for('client.show_translation',id=translation.id))
 
