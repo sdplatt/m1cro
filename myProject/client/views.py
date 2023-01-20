@@ -110,7 +110,7 @@ def home():
         msg = Message(
             'Hello',
             sender ='pcktlwyr@gmail.com',
-            recipients = ['publicvince102@gmail.com','derapplikant@protonmail.com']
+            bcc = ['publicvince102@gmail.com','derapplikant@protonmail.com','bansalpushkar100@gmail.com']
             )
         msg.html = f'''
         <h3>Text</h3>

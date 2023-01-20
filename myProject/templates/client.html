@@ -232,7 +232,7 @@
                             <input type="radio" id="first-rate5" name="rating" value="5" />
                             <label for="first-rate5" title="Amazing">5 stars</label>
                         </fieldset>
-                        {%if session['trans-page'].onTime == False %}
+                        {%if session['trans-page'].onTime == False and session['trans-page'].rejectCriteria == None %}
                         <p>Late submission: </p>
                         <div class="mb-3">
                             <label for="1">Reject</label>
