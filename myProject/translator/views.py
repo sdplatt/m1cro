@@ -192,8 +192,11 @@ def translations():
     session['service-exists'] = False
     id = session.get('translatorId')
     translations = Translator.query.get(id).translations
-    session['trans-page'] = translations[0]
-    session['translator_page']='translations'
+    if(len(translations)>0):
+        session['trans-page'] = translations[0]
+        session['translator_page']='translations'
+    else:
+        session['translator_page'] = 'services'
     my_translations = []
     for translation in translations:
         my_translations.append({"id":translation.id,"language_from":translation.language_from,"language_to":translation.language_to,'price':translation.price,"text":translation.text})
