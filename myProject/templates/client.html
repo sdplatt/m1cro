@@ -204,14 +204,13 @@
             <p><span class="fw-bold">Status:</span> {{session['trans-page'].status}}</p>
             <p><span class="fw-bold">Translator:</span> {{session['trans-page'].email or "Not assigned yet"}}</p>
             <p><span class="fw-bold">Deadline:</span> {{session['trans-page'].deadline}}</p>
+            {% set crit = session['trans-page'].rejectCriteria %}
+            <p><span class="fw-bold">Reject Critera:</span> {{"No submission Possible" if crit==1 else "you may face penalty depending of contract conditions"}}</p>
             <p><span class="fw-bold">Created At:</span> {{session['trans-page'].createdAt}}</p>
             <p><span class="fw-bold">Accepted At:</span> {{session['trans-page'].acceptedAt or 'Not Accepted Yet'}}</p>
             <p><span class="fw-bold">Submitted At:</span> {{session['trans-page'].submittedAt or 'Not Submitted Yet'}}</p>
             {%if session['trans-page'].onTime!=None %}
             <p><span class="fw-bold">On time:</span> {{"Yes" if session['trans-page'].onTime else "No"}}</p>
-            {%endif%}
-            {%if session['trans-page'].rejectCriteria %}
-            <p><span class="fw-bold">Reject Critera:</span> {{session['trans-page'].rejectCriteria}}</p>
             {%endif%}
             {% if session['trans-page'].email%}
             <div class="translated-text">
@@ -232,19 +231,6 @@
                             <input type="radio" id="first-rate5" name="rating" value="5" />
                             <label for="first-rate5" title="Amazing">5 stars</label>
                         </fieldset>
-                        {%if session['trans-page'].onTime == False and session['trans-page'].rejectCriteria == None %}
-                        <p>Late submission: </p>
-                        <div class="mb-3">
-                            <label for="1">Reject</label>
-                            <input type="radio" id="1" name="rejectCriteria" value="1" >
-
-                            <label for="2">50% Discount</label>
-                            <input type="radio" id="2" name="rejectCriteria" value="2" >
-                            
-                            <label for="3">Reject</label>
-                            <input type="radio" id="3" name="rejectCriteria" value="3" >
-                        </div>
-                        {%endif%}
                         <button class="btn btn-success mt-2">Submit</button>
                     </form>
                 {%elif session['trans-page'].translation and session['trans-page'].rating%}
@@ -267,6 +253,10 @@
             <div class="mb-3">
                 {{translationForm.deadline.label(class='form-label')}}
                 {{translationForm.deadline(class='form-control radio-form')}}
+            </div>
+            <div class="mb-3">
+                {{translationForm.rejectCriteria.label(class='form-label')}}
+                {{translationForm.rejectCriteria(class='form-control radio-form')}}
             </div>
             <div class="mb-3">
                 {{translationForm.text.label(class='form-label')}} <span id="word-count" class="ms-2 text-secondary"></span>

@@ -56,13 +56,14 @@ class Translation(db.Model,UserMixin):
     onTime = db.Column(db.Boolean)
     rejectCriteria = db.Column(db.Integer)
 
-    def __init__(self,client_id,l_from,l_to,deadline,text,statusId):
+    def __init__(self,client_id,l_from,l_to,deadline,text,statusId,rejectCriteria):
         self.client_id = client_id
         self.language_from= l_from
         self.language_to = l_to
         self.deadline = deadline
         self.text = text
         self.statusId = statusId
+        self.rejectCriteria = rejectCriteria
 
     def postProcess(self,price):
         self.price = price

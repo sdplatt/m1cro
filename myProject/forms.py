@@ -42,6 +42,7 @@ class TranslationForm(FlaskForm):
     language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired()])
     language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],validators=[DataRequired(),languageNotEqualTo])
     deadline = RadioField("Deadline",choices=[(1,"30 minutes"),(2,"60 minutes"),(3,"90 minutes"),(4,"120 minutes")],validators=[DataRequired()])
+    rejectCriteria = RadioField('Reject Criteria',choices=[(1,"Reject"),(2,"50% Discount"),(3,"No Action")])
     text = TextAreaField("Text for translation",validators=[DataRequired()])
     submit = SubmitField('editPrice')
 

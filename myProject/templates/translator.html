@@ -287,6 +287,8 @@
             <p><span class="fw-bold">Text:</span> {{session['trans-page'].text}}</p>            
             <p><span class="fw-bold">Status:</span> {{session['trans-page'].status}}</p>
             <p><span class="fw-bold">Deadline:</span> {{session['trans-page'].deadline}}</p>
+            {% set crit = session['trans-page'].rejectCriteria %}
+            <p><span class="fw-bold">Reject Critera:</span> {{"No submission Possible" if crit==1 else "you may face penalty depending of contract conditions"}}</p>
             <p><span class="fw-bold">Created At:</span> {{session['trans-page'].createdAt}}</p>
             <p><span class="fw-bold">Accepted At:</span> {{session['trans-page'].acceptedAt}}</p>
             <p><span class="fw-bold">Submitted At:</span> {{session['trans-page'].submittedAt or 'Not Submitted Yet'}}</p>
@@ -307,10 +309,7 @@
             {%if session['trans-page'].onTime!=None %}
             <p><span class="fw-bold">On time:</span> {{"Yes" if session['trans-page'].onTime else "No"}}</p>
             {%endif%}
-            {%if session['trans-page'].rejectCriteria %}
-            {% set crit = session['trans-page'].rejectCriteria %}
-            <p><span class="fw-bold">Reject Critera:</span> {{"No submission Possible" if crit==1 else "you may face penalty depending of contract conditions"}}</p>
-            {%endif%}
+
             {%endif%}
         </div>
     </div>

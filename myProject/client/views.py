@@ -90,7 +90,8 @@ def home():
                                     l_to=translationForm.language_to.data,
                                     deadline=translationForm.deadline.data,
                                     text = translationForm.text.data,
-                                    statusId=status.id)
+                                    statusId=status.id,
+                                    rejectCriteria=int(translationForm.rejectCriteria.data))
             db.session.add(translation)
             db.session.commit()
             session['error'] = None
@@ -216,9 +217,6 @@ def submit_review(id):
     translation.translator.rating_count=rating_count+1
     new_rating = (translator_rating + rating)/(rating_count+1)
     translation.translator.rating = new_rating
-    rejectCriteria = request.form.get('rejectCriteria')
-    if(rejectCriteria):
-        translation.rejectCriteria = rejectCriteria
     db.session.commit()
     return redirect(url_for('client.show_translation',id=translation.id))
 
