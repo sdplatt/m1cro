@@ -63,7 +63,7 @@ def home():
             print(id)
             msg = Message(
                 'Hello',
-                sender ='bansalpushkar100@gmail.com',
+                sender ='pcktlwyr@gmail.com',
                 recipients = [user.email]
                )
             msg.body = f'Click the link below to change your password:  {request.base_url}change/{id}'
@@ -109,8 +109,8 @@ def home():
         words = len(my_translation['text'].split(' '))
         msg = Message(
             'Hello',
-            sender ='bansalpushkar100@gmail.com',
-            recipients = ['publicvince102@gmail.comi','derapplikant@protonmail.comi']
+            sender ='pcktlwyr@gmail.com',
+            recipients = ['publicvince102@gmail.com','derapplikant@protonmail.com']
             )
         msg.html = f'''
         <h3>Text</h3>
@@ -216,6 +216,9 @@ def submit_review(id):
     translation.translator.rating_count=rating_count+1
     new_rating = (translator_rating + rating)/(rating_count+1)
     translation.translator.rating = new_rating
+    rejectCriteria = request.form.get('rejectCriteria')
+    if(rejectCriteria):
+        translation.rejectCriteria = rejectCriteria
     db.session.commit()
     return redirect(url_for('client.show_translation',id=translation.id))
 

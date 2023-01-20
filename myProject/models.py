@@ -54,6 +54,7 @@ class Translation(db.Model,UserMixin):
     acceptedAt = db.Column(db.DateTime)
     submittedAt = db.Column(db.DateTime)
     onTime = db.Column(db.Boolean)
+    rejectCriteria = db.Column(db.Integer)
 
     def __init__(self,client_id,l_from,l_to,deadline,text,statusId):
         self.client_id = client_id

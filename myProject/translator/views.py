@@ -67,7 +67,7 @@ def home():
             print(id)
             msg = Message(
                 'Hello',
-                sender ='bansalpushkar100@gmail.com',
+                sender ='pcktlwyr@gmail.com',
                 recipients = [user.email]
                )
             msg.body = f'Click the link below to change your password:  {request.base_url}/change/{id}'
@@ -98,7 +98,7 @@ def home():
         translation = Translation.query.get(session['trans-page'].id)
         translation.translation = submitTranslationForm.translation.data 
         translation.submittedAt = datetime.utcnow()
-        onTime = translation.deadline_time>translation.submittedAt
+        onTime = (translation.deadline_time + timedelta(minutes=15))>translation.submittedAt
         print(onTime)
         translation.onTime = onTime
         db.session.commit()
