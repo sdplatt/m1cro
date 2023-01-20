@@ -43,6 +43,7 @@ class Translation(db.Model,UserMixin):
     language_from = db.Column(db.String)
     language_to = db.Column(db.String)
     deadline = db.Column(db.Integer)
+    deadline_time = db.Column(db.DateTime)
     text = db.Column(db.String)
     statusId = db.Column(db.Integer,db.ForeignKey('status.id'),nullable=False)
     price = db.Column(db.Integer)
@@ -52,6 +53,7 @@ class Translation(db.Model,UserMixin):
     createdAt = db.Column(db.DateTime,default=datetime.utcnow)
     acceptedAt = db.Column(db.DateTime)
     submittedAt = db.Column(db.DateTime)
+    onTime = db.Column(db.Boolean)
 
     def __init__(self,client_id,l_from,l_to,deadline,text,statusId):
         self.client_id = client_id

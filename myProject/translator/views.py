@@ -96,7 +96,11 @@ def home():
     submitTranslationForm = SubmitTranslationForm()
     if(submitTranslationForm.validate_on_submit()):
         translation = Translation.query.get(session['trans-page'].id)
-        translation.translation = submitTranslationForm.translation.data
+        translation.translation = submitTranslationForm.translation.data 
+        translation.submittedAt = datetime.utcnow()
+        onTime = translation.deadline_time>translation.submittedAt
+        print(onTime)
+        translation.onTime = onTime
         db.session.commit()
         return redirect(url_for('translator.show_translation',id=translation.id))
     # USERS TABLE
@@ -163,9 +167,7 @@ def accept_page(translationId):
     if(translation.translatorId):
         return "Sorry! The translation has already been allotted"
     else:
-        now = datetime.utcnow()
-        deadline = now + timedelta(minutes=int(translation.deadline)*30)
-        session['translation'] = {"id":translation.id,"language_from":translation.language_from,"language_to":translation.language_to,'price':translation.price,"deadline":deadline,"text":translation.text}
+        session['translation'] = {"id":translation.id,"language_from":translation.language_from,"language_to":translation.language_to,'price':translation.price,"deadline":translation.deadline_time,"text":translation.text}
         session['translator_page'] = 'accept'
         return redirect(url_for('translator.home'))
 
@@ -194,9 +196,7 @@ def translations():
     session['translator_page']='translations'
     my_translations = []
     for translation in translations:
-        now = datetime.utcnow()
-        deadline = now + timedelta(minutes=int(translation.deadline)*30)
-        my_translations.append({"id":translation.id,"language_from":translation.language_from,"language_to":translation.language_to,'price':translation.price,"deadline":deadline,"text":translation.text})
+        my_translations.append({"id":translation.id,"language_from":translation.language_from,"language_to":translation.language_to,'price':translation.price,"text":translation.text})
     
     session['translations'] = my_translations
     return redirect(url_for('translator.home'))

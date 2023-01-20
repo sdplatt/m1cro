@@ -288,7 +288,11 @@
             <p><span class="fw-bold">Status:</span> {{session['trans-page'].status}}</p>
             <p><span class="fw-bold">Deadline:</span> {{session['trans-page'].deadline}}</p>
             <p><span class="fw-bold">Created At:</span> {{session['trans-page'].createdAt}}</p>
-            <p><span class="fw-bold">Accepted At:</span> {{session['trans-page'].acceptedAt or 'Not Accepted Yet'}}</p>
+            <p><span class="fw-bold">Accepted At:</span> {{session['trans-page'].acceptedAt}}</p>
+            <p><span class="fw-bold">Submitted At:</span> {{session['trans-page'].submittedAt or 'Not Submitted Yet'}}</p>
+            {%if session['trans-page'].onTime%}
+            <p><span class="fw-bold">On time:</span> {{session['trans-page'].onTime}}</p>
+            {%endif%}
             {%if not session['trans-page'].translation %}
                 <form action="" method="POST">
                     {{submitTranslationForm.hidden_tag()}}

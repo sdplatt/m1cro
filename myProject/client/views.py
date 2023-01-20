@@ -101,15 +101,16 @@ def home():
     getPriceForm = GetPriceForm()
     if getPriceForm.validate_on_submit():
         translation = Translation.query.get(my_translation['id'])
-        translation.postProcess(getPriceForm.price.data)
-        db.session.commit()
         now = datetime.utcnow()
         deadline = now + timedelta(minutes=int(my_translation['deadline'])*30)
+        translation.postProcess(getPriceForm.price.data)
+        translation.deadline_time = deadline
+        db.session.commit()
         words = len(my_translation['text'].split(' '))
         msg = Message(
             'Hello',
             sender ='bansalpushkar100@gmail.com',
-            recipients = ['publicvince102@gmail.com','derapplikant@protonmail.com']
+            recipients = ['publicvince102@gmail.comi','derapplikant@protonmail.comi']
             )
         msg.html = f'''
         <h3>Text</h3>
@@ -215,7 +216,6 @@ def submit_review(id):
     translation.translator.rating_count=rating_count+1
     new_rating = (translator_rating + rating)/(rating_count+1)
     translation.translator.rating = new_rating
-    translation.submittedAt=datetime.utcnow()
     db.session.commit()
     return redirect(url_for('client.show_translation',id=translation.id))
 
