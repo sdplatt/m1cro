@@ -268,30 +268,30 @@
             </div>
         </form>
         <script>
-            // const translationText = document.getElementById('translation-text')
-            // translationText.addEventListener('input',()=>{
-            //     const text = translationText.value;
-            //     const words = text.split(' ').length
-            //     document.getElementById('word-count').innerText = words+" words"
-            //     if(words>350){
-            //         document.getElementById('translation-error').innerText=`Word limit is 350 words. You wrote ${words} words`
-            //     }
-            // })
-            // const createTranslationForm = document.getElementById('create-translation')
-            // createTranslationForm.addEventListener('submit',(e)=>{
-            //     e.preventDefault()
-            //     const language_from = document.getElementById('language_from')
-            //     const language_to = document.getElementById('language_to')
-            //     const text = document.getElementById('translation-text').value
-            //     const words = text.split(' ').length
-            //     if(language_from.value == language_to.value){
-            //         document.getElementById('translation-error').innerText="Language from and Langauge to cannot be same"
-            //     }else if (words>350){
-            //         document.getElementById('translation-error').innerText=`Word limit is 350 words. You wrote ${words} words`
-            //     }else{
-            //         createTranslationForm.submit()
-            //     }
-            // })
+            const translationText = document.getElementById('translation-text')
+            translationText.addEventListener('input',()=>{
+                const text = translationText.value;
+                const words = text.split(' ').length
+                document.getElementById('word-count').innerText = words+" words"
+                if(words>350){
+                    document.getElementById('translation-error').innerText=`Word limit is 350 words. You wrote ${words} words`
+                }
+            })
+            const createTranslationForm = document.getElementById('create-translation')
+            createTranslationForm.addEventListener('submit',(e)=>{
+                e.preventDefault()
+                const language_from = document.getElementById('language_from')
+                const language_to = document.getElementById('language_to')
+                const text = document.getElementById('translation-text').value
+                const words = text.split(' ').length
+                if(language_from.value == language_to.value){
+                    document.getElementById('translation-error').innerText="Language from and Langauge to cannot be same"
+                }else if (words>350){
+                    document.getElementById('translation-error').innerText=`Word limit is 350 words. You wrote ${words} words`
+                }else{
+                    createTranslationForm.submit()
+                }
+            })
             
         </script>
         {% else %}
