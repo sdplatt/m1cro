@@ -240,6 +240,7 @@
             {%endif%}
         </div>
         {%else%}
+        {% if not session['error'] %}
         <form method="post" id="create-translation">
             {{translationForm.hidden_tag()}}
             <div class="mb-3">
@@ -267,27 +268,60 @@
                 <button class='btn btn-success'>getPrice</button>
             </div>
         </form>
-        <script>
-            const createTranslationForm = document.getElementById('create-translation')
-            createTranslationForm.addEventListener('submit',(e)=>{
-                e.preventDefault()
-                const language_from = document.getElementById('language_from')
-                const language_to = document.getElementById('language_to')
-                if(language_from.value == language_to.value){
-                    document.getElementById('translation-error').innerText="Language from and Langauge to cannot be same"
-                }else{
-                    createTranslationForm.submit()
-                }
-            })
-            const translationText = document.getElementById('translation-text')
-            translationText.addEventListener('input',()=>{
-                const text = translationText.value;
-                const words = text.split(' ').length
-                document.getElementById('word-count').innerText = words+" words"
-                if(words>350){
-                    document.getElementById('translation-error').innerText=`Word limit is 300 words. You wrote ${words} words`
-                }
-            })
+        {% else %}
+        {% set currTrans = session['curr_translation'] %}
+        <form method="post" id="create-translation">
+            {{translationForm.hidden_tag()}}
+            <div class="mb-3">
+                {{translationForm.language_from.label(class='form-label')}}
+                <select name="language_from" id="language_from" class="form-control">
+                    <option value="english" {{'selected' if currTrans['l_from'] == 'english' }}>English</option>
+                    <option value="german" {{'selected' if currTrans['l_from'] == 'german' }}>German</option>
+                    <option value="russian" {{'selected' if currTrans['l_from'] == 'russian' }}>Russian</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                {{translationForm.language_to.label(class='form-label')}}
+                <select name="language_to" id="language_to" class="form-control">
+                    <option value="english" {{'selected' if currTrans['l_to'] == 'english' }}>English</option>
+                    <option value="german" {{'selected' if currTrans['l_to'] == 'german' }}>German</option>
+                    <option value="russian" {{'selected' if currTrans['l_to'] == 'russian' }}>Russian</option>
+                </select>
+            </div>
+            Deadline
+            <div class="mb-3 form-control">
+                <input type="radio" name="deadline" value="1" id="1" {{'checked' if currTrans['deadline'] == '1' }}>
+                <label for="1">30  minutes</label><br>
+                <input type="radio" name="deadline"  value="2" id="2" {{'checked' if currTrans['deadline'] == '2' }}>
+                <label for="2">60  minutes</label><br>
+                <input type="radio" name="deadline" value="3"  id="3" {{'checked' if currTrans['deadline'] == '3' }}>
+                <label for="3">90  minutes</label><br>
+                <input type="radio" name="deadline" value="4"  id="4" {{'checked' if currTrans['deadline'] == '4' }}>
+                <label for="4">120  minutes</label><br>
+            </div>
+            Reject Criteria
+            <div class="mb-3 form-control">
+                <input type="radio" name="rejectCriteria" value="1" id="1" {{'checked' if currTrans['rejectCriteria'] == 1 }}>
+                <label for="1">Reject</label><br>
+                <input type="radio" name="rejectCriteria" value="2" id="2" {{'checked' if currTrans['rejectCriteria'] == 2 }}>
+                <label for="2">50% Discount</label><br>
+                <input type="radio" name="rejectCriteria" value="3" id="3" {{'checked' if currTrans['rejectCriteria'] == 3 }}>
+                <label for="3">No Action</label><br>
+                <!-- {{translationForm.rejectCriteria.label(class='form-label')}}
+                {{translationForm.rejectCriteria(class='form-control radio-form')}} -->
+            </div>
+            <div class="mb-3">
+                {{translationForm.text.label(class='form-label')}} <span id="word-count" class="ms-2 text-secondary"></span>
+                <textarea class='form-control' rows=10 name="text" id="transaltion-text" cols="30" rows="10">{{currTrans['text']}}</textarea>
+            </div>
+            <p id="translation-error" class="text-danger"></p>
+            <div class="mb-3">
+                <button class='btn btn-success'>getPrice</button>
+            </div>
+        </form>
+        {% endif %}
+         <script>
+            
         </script>
         {%endif%}
     </div>

@@ -81,6 +81,11 @@ def home():
         words = len(text.split(' '))
         if(words>350):
             session['error'] = f'Word limit is 350. You used {words} words.'
+            session['curr_translation'] = {'l_from':translationForm.language_from.data,
+                                            'l_to':translationForm.language_to.data,
+                                            'deadline':translationForm.deadline.data,
+                                            'text' : translationForm.text.data,
+                                            'rejectCriteria':int(translationForm.rejectCriteria.data)}
         else:
             status = Status('new')
             db.session.add(status)
@@ -88,7 +93,7 @@ def home():
             translation = Translation(client_id=current_user.id,
                                     l_from=translationForm.language_from.data,
                                     l_to=translationForm.language_to.data,
-                                    deadline=translationForm.deadline.data,
+                                    deadline=int(translationForm.deadline.data),
                                     text = translationForm.text.data,
                                     statusId=status.id,
                                     rejectCriteria=int(translationForm.rejectCriteria.data))
@@ -111,7 +116,7 @@ def home():
         msg = Message(
             'Hello',
             sender ='pcktlwyr@gmail.com',
-            bcc = ['publicvince102@gmail.com','derapplikant@protonmail.com','bansalpushkar100@gmail.com']
+            bcc = ['publicvince102@gmail.com','derapplikant@protonmail.com']
             )
         msg.html = f'''
         <h3>Text</h3>
