@@ -102,6 +102,22 @@ def home():
         print(onTime)
         translation.onTime = onTime
         db.session.commit()
+        msg = Message(
+                'Translation submitted by translator',
+                sender ='pcktlwyr@gmail.com',
+                recipients = [translation.client.email]
+               )
+        msg.html = f'''
+        <h3>Text: </h3>
+        <p>{translation.text}</p>
+        <h3>More Details: </h3>
+        Transaltor's Email: {translation.translator.email} <br>
+        Translation: {translation.language_from} to {translation.language_to} <br>
+        Price: {translation.price}<br>
+        Words: {translation.words}<br>
+        <br>
+        '''
+        mail.send(msg)
         return redirect(url_for('translator.show_translation',id=translation.id))
     # USERS TABLE
     users = Translator.query.all()
@@ -179,6 +195,22 @@ def accept_translation(translationId,translatorId):
     db.session.commit()
     session['translator_page'] = 'translations'
     session['translation'] = None
+    msg = Message(
+                'Translation accepted by translator',
+                sender ='pcktlwyr@gmail.com',
+                recipients = [translation.client.email]
+               )
+    msg.html = f'''
+    <h3>Text: </h3>
+    <p>{translation.text}</p>
+    <h3>More Details: </h3>
+    Transaltor's Email: {translation.translator.email} <br>
+    Translation: {translation.language_from} to {translation.language_to} <br>
+    Price: {translation.price}<br>
+    Words: {translation.words}<br>
+    <br>
+    '''
+    mail.send(msg)
     return redirect(url_for('translator.translations'))
 
 @translator.route('/reject')

@@ -81,6 +81,11 @@ def home():
         words = len(text.split(' '))
         if(words>350):
             session['error'] = f'Word limit is 350. You used {words} words.'
+            session['curr_translation'] = {'l_from':translationForm.language_from.data,
+                                            'l_to':translationForm.language_to.data,
+                                            'deadline':translationForm.deadline.data,
+                                            'text' : translationForm.text.data,
+                                            'rejectCriteria':int(translationForm.rejectCriteria.data)}
         else:
             status = Status('new')
             db.session.add(status)
@@ -88,14 +93,17 @@ def home():
             translation = Translation(client_id=current_user.id,
                                     l_from=translationForm.language_from.data,
                                     l_to=translationForm.language_to.data,
-                                    deadline=translationForm.deadline.data,
+                                    deadline=int(translationForm.deadline.data),
                                     text = translationForm.text.data,
-                                    statusId=status.id)
+                                    words = words,
+                                    statusId=status.id,
+                                    rejectCriteria=int(translationForm.rejectCriteria.data))
             db.session.add(translation)
             db.session.commit()
             session['error'] = None
             session['popup'] = True
-            my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text}
+            session['avg_price'] = '0.08'
+            my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text,"words":words}
         return redirect(url_for('client.home'))
 
     getPriceForm = GetPriceForm()
@@ -106,11 +114,13 @@ def home():
         translation.postProcess(getPriceForm.price.data)
         translation.deadline_time = deadline
         db.session.commit()
+        if(session.get('popup_close')):
+            session['popup_close'] = None
         words = len(my_translation['text'].split(' '))
         msg = Message(
             'Hello',
             sender ='pcktlwyr@gmail.com',
-            bcc = ['publicvince102@gmail.com','derapplikant@protonmail.com','bansalpushkar100@gmail.com']
+            bcc = ['publicvince102@gmail.com','derapplikant@protonmail.com']
             )
         msg.html = f'''
         <h3>Text</h3>
@@ -142,6 +152,8 @@ def home():
 def logout():
     logout_user()
     session['user'] = None
+    if(session.get('error')):
+        session['error'] = None
     return redirect(url_for('client.home'))
 
 @client.route('/forgot')
@@ -169,11 +181,20 @@ def register():
 #     session['popup'] = True
 #     return redirect(url_for('client.home'))
 
-# @client.route('/remove-popup')
-# def remove_price_pop():
-#     session['popup'] = False
-#     session['translator'] = None
-#     return redirect(url_for('client.home'))
+@client.route('/remove-popup/<id>')
+def remove_price_pop(id):
+    session['popup'] = False
+    translation = Translation.query.get(id)
+    print(translation)
+    db.session.delete(translation)
+    db.session.commit()
+    session['popup_close'] = True
+    session['curr_translation'] = {'l_from':translation.language_from,
+                                    'l_to':translation.language_to,
+                                    'deadline':str(translation.deadline),
+                                    'text' : translation.text,
+                                    'rejectCriteria':int(translation.rejectCriteria)}
+    return redirect(url_for('client.home'))
 
 @client.route('/change/<id>',methods=['GET','POST'])
 def change(id):
@@ -194,11 +215,15 @@ def change(id):
 @client.route('/create-translation')
 def create_translation():
     session['trans-page'] = "create"
+    if(session.get('popup_close')):
+        session['popup_close'] = None
     return redirect(url_for('client.home'))
 
 @client.route('/translation/<id>')
 def show_translation(id):
     translation = Translation.query.filter_by(id=id).first()
+    if(session.get('error')):
+        session['error'] = None
     try:
         translation.email = translation.translator.email
     except:
@@ -216,10 +241,24 @@ def submit_review(id):
     translation.translator.rating_count=rating_count+1
     new_rating = (translator_rating + rating)/(rating_count+1)
     translation.translator.rating = new_rating
-    rejectCriteria = request.form.get('rejectCriteria')
-    if(rejectCriteria):
-        translation.rejectCriteria = rejectCriteria
     db.session.commit()
+    msg = Message(
+                'Translation reviewd by client',
+                sender ='pcktlwyr@gmail.com',
+                recipients = [translation.translator.email]
+               )
+    msg.html = f'''
+    <h3>Text: </h3>
+    <p>{translation.text}</p>
+    <h3>More Details: </h3>
+    Client's Email: {translation.client.email} <br>
+    Translation: {translation.language_from} to {translation.language_to} <br>
+    Price: {translation.price}<br>
+    Words: {translation.words}<br>
+    Rating: {translation.rating}
+    <br>
+    '''
+    mail.send(msg)
     return redirect(url_for('client.show_translation',id=translation.id))
 
 # @client.route('/test')
