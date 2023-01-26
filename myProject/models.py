@@ -3,6 +3,9 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
 import uuid
 from datetime import datetime
+import os
+import requests
+import json
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -56,6 +59,7 @@ class Translation(db.Model,UserMixin):
     submittedAt = db.Column(db.DateTime)
     onTime = db.Column(db.Boolean)
     rejectCriteria = db.Column(db.Integer)
+    botId=db.Column(db.Integer,db.ForeignKey('bots.id'))
 
     def __init__(self,client_id,l_from,l_to,deadline,text,statusId,rejectCriteria,words):
         self.client_id = client_id
@@ -91,6 +95,7 @@ class Service(db.Model,UserMixin):
     target_price = db.Column(db.Integer)
     deadline = db.Column(db.Integer)
     translatorId = db.Column(db.Integer,db.ForeignKey('translators.id'))
+    botId = db.Column(db.Integer,db.ForeignKey('bots.id'))
 
     __table_args__=(db.UniqueConstraint('language_from',"language_to","translatorId",name="from_to"),)
 
@@ -133,3 +138,43 @@ class Translator(db.Model,UserMixin):
 
     # def __repr__(self) :
     #     return f"Translator: {self.name}"
+
+class Bot(db.Model,UserMixin):
+
+    __tablename__ = 'bots'
+
+    id = db.Column(db.Integer,primary_key=True)
+    api=db.Column(db.String,unique=True)
+    email=db.Column(db.String)
+    translations = db.relationship('Translation',backref="Bot",lazy=True)
+    services = db.relationship('Service',backref="Bot",lazy=True)
+    rating = db.Column(db.Float(),default=0)
+    rating_count = db.Column(db.Integer,default=0)
+
+    def __init__(self,api,email):
+        self.api = api
+        self.email = email
+    
+    def translate(self,obj):
+        target_language = obj['l_to']
+        texts = [obj['text']]
+        IAM_TOKEN=os.getenv('YANDEX_IAM_TOKEN')
+        folder_id=os.getenv('YANDEX_FOLDER_ID')
+
+        body = {
+            "targetLanguageCode": target_language,
+            "texts": texts,
+            "folderId": folder_id,
+        }
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {0}".format(IAM_TOKEN)
+        }
+
+        response = requests.post(self.api,
+            json = body,
+            headers = headers
+        )
+
+        return json.loads(response.text)['translations'][0]['text']        

@@ -1,11 +1,14 @@
 from flask import redirect,url_for,render_template,request,Blueprint,session
-from myProject.models import Client,Translation,Status
+from myProject.models import Client,Translation,Status,Bot
 from myProject.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm,GetPriceForm
 from myProject import db,mail
 from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
+import os
+
+min_price = 0.025
 
 client = Blueprint('client',__name__)
 my_translation = None
@@ -102,41 +105,85 @@ def home():
             db.session.commit()
             session['error'] = None
             session['popup'] = True
-            session['avg_price'] = '10'
+            session['avg_price'] = '0.08'
             my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text,"words":words}
+            session['curr_trans'] = my_translation
         return redirect(url_for('client.home'))
 
     getPriceForm = GetPriceForm()
     if getPriceForm.validate_on_submit():
-        translation = Translation.query.get(my_translation['id'])
-        now = datetime.utcnow()
-        deadline = now + timedelta(minutes=int(my_translation['deadline'])*30)
-        translation.postProcess(getPriceForm.price.data)
-        translation.deadline_time = deadline
-        db.session.commit()
-        if(session.get('popup_close')):
-            session['popup_close'] = None
-        words = len(my_translation['text'].split(' '))
-        msg = Message(
-            'Hello',
-            sender ='pcktlwyr@gmail.com',
-            bcc = ['publicvince102@gmail.comi','derapplikant@protonmail.comi']
-            )
-        msg.html = f'''
-        <h3>Text</h3>
-        <p>{my_translation['text']}</p>
-        <h3>More Details: </h3>
-        Client's Email: {current_user.email} <br>
-        Translation: {my_translation['language_from']} to {my_translation['language_to']} <br>
-        Price: {getPriceForm.price.data} <br>
-        Total words: {words} <br>
-        Deadline: {deadline} <br>
-        <br>
-        <p>
-        Click <a href="{request.base_url}translator/accept-page/{my_translation['id']}">here</a> to accept or reject the translation.
-        </p>
-        '''
-        mail.send(msg)
+        price = getPriceForm.price.data
+        words = my_translation['words']
+        if(price/words>min_price):
+            translation = Translation.query.get(my_translation['id'])
+            now = datetime.utcnow()
+            deadline = now + timedelta(minutes=int(my_translation['deadline'])*30)
+            translation.postProcess(getPriceForm.price.data)
+            translation.deadline_time = deadline
+            db.session.commit()
+            if(session.get('popup_close')):
+                session['popup_close'] = None
+            words = len(my_translation['text'].split(' '))
+            msg = Message(
+                'Hello',
+                sender ='pcktlwyr@gmail.com',
+                bcc = ['publicvince102@gmail.com','derapplikant@protonmail.com']
+                )
+            msg.html = f'''
+            <h3>Text</h3>
+            <p>{my_translation['text']}</p>
+            <h3>More Details: </h3>
+            Client's Email: {current_user.email} <br>
+            Translation: {my_translation['language_from']} to {my_translation['language_to']} <br>
+            Price: {getPriceForm.price.data} <br>
+            Total words: {words} <br>
+            Deadline: {deadline} <br>
+            <br>
+            <p>
+            Click <a href="{request.base_url}translator/accept-page/{my_translation['id']}">here</a> to accept or reject the translation.
+            </p>
+            '''
+            mail.send(msg)
+        else:
+            bot = Bot.query.get(1)
+            l_to = my_translation['language_to']
+            api_lto = "en" if l_to=='english' else "ru" if l_to=='russian' else "de"
+            print(api_lto)
+            obj = {'l_to':api_lto,'text':my_translation['text']}
+            try:
+                res = bot.translate(obj)
+                print(res)
+            except:
+                res = "translated"
+
+            translation = Translation.query.get(my_translation['id'])
+            print(translation)
+            translation.botId = bot.id
+            translation.postProcess(getPriceForm.price.data)
+            translation.translation = res
+            translation.acceptedAt=datetime.utcnow()
+            translation.submittedAt=datetime.utcnow()
+            db.session.commit()
+            if(session.get('popup_close')):
+                session['popup_close'] = None
+
+            msg = Message(
+                'Translation completed by bot',
+                sender ='pcktlwyr@gmail.com',
+                recipients = [current_user.email]
+                )
+            msg.html = f'''
+            <h3>Text</h3>
+            <p>{my_translation['text']}</p>
+            <h3>More Details: </h3>
+            Bot's Email: {bot.email} <br>
+            Translation: {my_translation['language_from']} to {my_translation['language_to']} <br>
+            Price: {getPriceForm.price.data} <br>
+            Total words: {words} <br>
+            <br>
+            '''
+            mail.send(msg)
+
         session['popup'] = False
         my_translation = None
         return redirect(url_for('client.home'))
@@ -263,6 +310,8 @@ def submit_review(id):
 
 # @client.route('/test')
 # def delete_trans():
-#     translation = Translation.query.get(10)
-#     return str(translation.translator.rating)
+    # bot = Bot(api='https://translate.api.cloud.yandex.net/translate/v2/translate',email="bot@yandex.com")
+    # db.session.add(bot)
     # db.session.commit()
+    # bot = Bot.query.get(1)
+    # return bot.api

@@ -186,7 +186,7 @@
 <div class="translations my-4">
     <div class="all-translations">
         <div class="all-heading py-2"><h4 class="text-center">All Translations</h4><a href="/create-translation" class="text-dark new-btn">Create New</a></div>
-        {% for translation in translations %}
+        {% for translation in translations[::-1] %}
         <a href="{{url_for('client.show_translation',id=translation.id)}}" class="text-decoration-none text-black">
             <div class="translation px-4 py-3">
                 <p><span class="fw-bold">From:</span> {{translation.language_from}} To {{translation.language_to}}</p>
@@ -211,10 +211,10 @@
             {%if session['trans-page'].onTime!=None %}
             <p><span class="fw-bold">On time:</span> {{"Yes" if session['trans-page'].onTime else "No"}}</p>
             {%endif%}
-            {% if session['trans-page'].email%}
+            {% if session['trans-page'].email or session['trans-page'].translation %}
             <div class="translated-text">
                 <textarea type="textarea" readonly class="form-control">{{session['trans-page'].translation or 'No translation yet'}}</textarea>
-                {%if session['trans-page'].translation and not session['trans-page'].rating %}
+                {%if session['trans-page'].translation and session['trans-page'].translator and not session['trans-page'].rating %}
                 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='stars.css') }}">
                     <form action="/rating/{{session['trans-page'].id}}" class="mt-3" method="POST" >
                         <fieldset class="starability-coinFlip">
@@ -375,10 +375,10 @@
     <div class="popup-content p-4">
         Translation Details: 
         <ul>
-            <li>From {{translation.language_from}} to {{translation.language_to}}</li>
-            <li>Deadline: {{translation.deadline}}</li>
-            <li>Text: {{translation.text[:150]}}...</li>
-            <li>Words: {{translation.words}}</li>
+            <li>From {{session['curr_trans']['language_from']}} to {{session['curr_trans']['language_to']}}</li>
+            <li>Deadline: {{session['curr_trans']['deadline']}}</li>
+            <li>Text: {{session['curr_trans']['text'][:150]}}...</li>
+            <li>Words: {{session['curr_trans']['words']}}</li>
             <li>Avg. Price: ${{session['avg_price']}}</li>
         </ul>
         <form method="POST" id="add_price_form">
