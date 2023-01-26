@@ -148,16 +148,13 @@ def home():
             bot = Bot.query.get(1)
             l_to = my_translation['language_to']
             api_lto = "en" if l_to=='english' else "ru" if l_to=='russian' else "de"
-            print(api_lto)
             obj = {'l_to':api_lto,'text':my_translation['text']}
             try:
                 res = bot.translate(obj)
-                print(res)
             except:
                 res = "translated"
 
             translation = Translation.query.get(my_translation['id'])
-            print(translation)
             translation.botId = bot.id
             translation.postProcess(getPriceForm.price.data)
             translation.translation = res
@@ -168,7 +165,7 @@ def home():
                 session['popup_close'] = None
 
             msg = Message(
-                'Translation completed by bot',
+                'Translation submitted by translator',
                 sender ='pcktlwyr@gmail.com',
                 recipients = [current_user.email]
                 )
@@ -176,7 +173,7 @@ def home():
             <h3>Text</h3>
             <p>{my_translation['text']}</p>
             <h3>More Details: </h3>
-            Bot's Email: {bot.email} <br>
+            Translator's Email: {bot.email} <br>
             Translation: {my_translation['language_from']} to {my_translation['language_to']} <br>
             Price: {getPriceForm.price.data} <br>
             Total words: {words} <br>
@@ -232,7 +229,6 @@ def register():
 def remove_price_pop(id):
     session['popup'] = False
     translation = Translation.query.get(id)
-    print(translation)
     db.session.delete(translation)
     db.session.commit()
     session['popup_close'] = True
@@ -272,7 +268,10 @@ def show_translation(id):
     if(session.get('error')):
         session['error'] = None
     try:
-        translation.email = translation.translator.email
+        if(translation.translator):
+            translation.email = translation.translator.email
+        elif(translation.Bot):
+            translation.email = translation.Bot.email
     except:
         translation.email = None
     session['trans-page'] = translation
@@ -283,35 +282,40 @@ def submit_review(id):
     translation = Translation.query.get(id)
     rating = int(request.form.get('rating'))
     translation.rating = rating
-    translator_rating = translation.translator.rating or 0
-    rating_count = translation.translator.rating_count or 0
-    translation.translator.rating_count=rating_count+1
-    new_rating = (translator_rating + rating)/(rating_count+1)
-    translation.translator.rating = new_rating
+    if(translation.translator):
+        translator_rating = translation.translator.rating or 0
+        rating_count = translation.translator.rating_count or 0
+        translation.translator.rating_count=rating_count+1
+        new_rating = (translator_rating + rating)/(rating_count+1)
+        translation.translator.rating = new_rating
+        msg = Message(
+                    'Translation reviewd by client',
+                    sender ='pcktlwyr@gmail.com',
+                    recipients = [translation.translator.email]
+                )
+        msg.html = f'''
+        <h3>Text: </h3>
+        <p>{translation.text}</p>
+        <h3>More Details: </h3>
+        Client's Email: {translation.client.email} <br>
+        Translation: {translation.language_from} to {translation.language_to} <br>
+        Price: {translation.price}<br>
+        Words: {translation.words}<br>
+        Rating: {translation.rating}
+        <br>
+        '''
+        mail.send(msg)
+    elif (translation.Bot):
+        bot_rating = translation.Bot.rating or 0
+        rating_count = translation.Bot.rating_count or 0
+        translation.Bot.rating_count=rating_count+1
+        new_rating = (bot_rating + rating)/(rating_count+1)
+        translation.Bot.rating = new_rating
     db.session.commit()
-    msg = Message(
-                'Translation reviewd by client',
-                sender ='pcktlwyr@gmail.com',
-                recipients = [translation.translator.email]
-               )
-    msg.html = f'''
-    <h3>Text: </h3>
-    <p>{translation.text}</p>
-    <h3>More Details: </h3>
-    Client's Email: {translation.client.email} <br>
-    Translation: {translation.language_from} to {translation.language_to} <br>
-    Price: {translation.price}<br>
-    Words: {translation.words}<br>
-    Rating: {translation.rating}
-    <br>
-    '''
-    mail.send(msg)
+    
     return redirect(url_for('client.show_translation',id=translation.id))
 
-# @client.route('/test')
-# def delete_trans():
-    # bot = Bot(api='https://translate.api.cloud.yandex.net/translate/v2/translate',email="bot@yandex.com")
-    # db.session.add(bot)
-    # db.session.commit()
-    # bot = Bot.query.get(1)
-    # return bot.api
+@client.route('/test')
+def delete_trans():
+    bot = Bot.query.get(1)
+    return bot.email
