@@ -158,8 +158,8 @@ class Bot(db.Model,UserMixin):
     def translate(self,obj):
         target_language = obj['l_to']
         texts = [obj['text']]
-        IAM_TOKEN=os.getenv('YANDEX_IAM_TOKEN')
-        folder_id=os.getenv('YANDEX_FOLDER_ID')
+        IAM_TOKEN=os.getenv('IAMTOKEN')
+        folder_id=os.getenv('FOLDERID')
 
         body = {
             "targetLanguageCode": target_language,

@@ -8,7 +8,10 @@ from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 import os
 
-min_price = 0.025
+min_price = 0.025 #will come from query based on number of matching translators - for now hardcode
+max_word_len = 350 # config this
+the_site = 'Lucky Translations'
+the_site_email = 'office@luckt.com'
 
 client = Blueprint('client',__name__)
 my_translation = None
@@ -82,7 +85,8 @@ def home():
         global my_translation
         text = translationForm.text.data
         words = len(text.split(' '))
-        if(words>350):
+        
+        if(words>max_word_len):
             session['error'] = f'Word limit is 350. You used {words} words.'
             session['curr_translation'] = {'l_from':translationForm.language_from.data,
                                             'l_to':translationForm.language_to.data,
@@ -125,7 +129,7 @@ def home():
                 session['popup_close'] = None
             words = len(my_translation['text'].split(' '))
             msg = Message(
-                'Hello',
+                'A Job offer from {the_site}',
                 sender ='pcktlwyr@gmail.com',
                 bcc = ['publicvince102@gmail.com','derapplikant@protonmail.com']
                 )
@@ -152,7 +156,8 @@ def home():
             try:
                 res = bot.translate(obj)
             except:
-                res = "translated"
+                #indicates a problem with the API call
+                res = "Please contact the help desk on {the_site_email}"
 
             translation = Translation.query.get(my_translation['id'])
             translation.botId = bot.id
@@ -165,7 +170,7 @@ def home():
                 session['popup_close'] = None
 
             msg = Message(
-                'Translation submitted by translator',
+                'A translation has been submitted by a Translator',
                 sender ='pcktlwyr@gmail.com',
                 recipients = [current_user.email]
                 )
@@ -289,7 +294,7 @@ def submit_review(id):
         new_rating = (translator_rating + rating)/(rating_count+1)
         translation.translator.rating = new_rating
         msg = Message(
-                    'Translation reviewd by client',
+                    'A Translation has been reviewed and accepted by a Client',
                     sender ='pcktlwyr@gmail.com',
                     recipients = [translation.translator.email]
                 )
