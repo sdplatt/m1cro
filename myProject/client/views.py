@@ -13,6 +13,7 @@ min_price = 0.025 #will come from query based on number of matching translators 
 max_word_len = 350 # config this
 the_site = 'Lucky Translations'
 the_site_email = 'office@luckt.com'
+the_site_currency = 'EUR'
 
 client = Blueprint('client',__name__)
 my_translation = None
@@ -123,7 +124,12 @@ def home():
             translation = Translation.query.get(my_translation['id'])
             now = datetime.now(timezone('CET'))
             current_time = now.strftime("%H:%M")
-
+            #add betatestas here
+            beta_testers = ['exitnumber3@mail.ru']
+            candidates = ['publicvince102@gmail.com','deruen@pm.me']
+            new_candidates = list(set(beta_testers + candidates)) #use later
+            if current_user.email in candidates:
+                candidates.remove(current_user.email)
             deadline = now + timedelta(minutes=int(my_translation['deadline'])*30)
             translation.postProcess(getPriceForm.price.data)
             translation.deadline_time = deadline
@@ -134,7 +140,7 @@ def home():
             msg = Message(
                 'A Job offer from {the_site}',
                 sender ='pcktlwyr@gmail.com',
-                bcc = ['publicvince102@gmail.com','derapplikant@protonmail.com']
+                bcc = candidates
                 )
             msg.html = f'''
             <h3>Text</h3>
