@@ -153,9 +153,9 @@
     }
 </style>
 <div class="nav-bar">
-    <span class="mx-3"><a href="/translator/logout">Logout</a></span>
     <span class="mx-3"><a href="/translator/services">Services</a></span>
     <span class="mx-3"><a href="/translator/translations">My Translations</a></span>
+    <span class="mx-3"><a href="/translator/logout">LOGOUT</a></span>
 </div>
 <style>
     .radio-form{
@@ -205,10 +205,10 @@
         <div class="all-heading py-2"><h4 class="text-center">All Services</h4></div>
         {% for service in services %}
         <div class="translation px-4 py-3">
-            <p><span class="fw-bold">From:</span> {{service.language_from}} To {{service.language_to}}</p>
+            <p><span class="fw-bold">From/aus/с:</span> {{service.language_from}} To/nach/в {{service.language_to}}</p>
             <p><span class="fw-bold">Min-Price:</span> ${{service.min_price}}</p>
             <p><span class="fw-bold">Target Price:</span> ${{service.target_price}}</p>
-            <p><span class="fw-bold">Deadline:</span> {{service.deadline}}</p>
+            <p><span class="fw-bold">Minimum time to complete:</span> {{service.deadline}}</p>
         </div>
         {% endfor %}
     </div>
@@ -237,7 +237,7 @@
             </div>
             <p id="service-error" class="text-danger">
                 {%if(session['service-exists'])%}
-                    Service is already Created.
+                    Service already exists | Dienstleistung besteht schon | Сервис уже существует
                 {%endif%}
             </p>
             <div class="mb-3">

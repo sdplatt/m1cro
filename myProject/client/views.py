@@ -126,7 +126,7 @@ def home():
             current_time = now.strftime("%H:%M")
             #add betatestas here
             beta_testers = ['exitnumber3@mail.ru']
-            candidates = ['publicvince102@gmail.com','deruen@pm.me']
+            candidates = ['publicvince102@gmail.com','deruen@proton.me']
             new_candidates = list(set(beta_testers + candidates)) #use later
             if current_user.email in candidates:
                 candidates.remove(current_user.email)
