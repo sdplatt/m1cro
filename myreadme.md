@@ -46,6 +46,11 @@ git stash
 OR
 git reset --hard HEAD
  
+PUSH to remote branch
+git push origin new
+
+
+
 
 TIMES DATES
 * add setting for Translator (best as part of config) - timeZone or automatic adjustment to timezone or CET - No keep CET

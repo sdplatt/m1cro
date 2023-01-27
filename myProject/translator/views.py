@@ -6,6 +6,7 @@ from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
+from pytz import timezone
 
 translator = Blueprint('translator',__name__,url_prefix='/translator')
 myUser = None
@@ -97,7 +98,7 @@ def home():
     if(submitTranslationForm.validate_on_submit()):
         translation = Translation.query.get(session['trans-page'].id)
         translation.translation = submitTranslationForm.translation.data 
-        translation.submittedAt = datetime.utcnow()
+        translation.submittedAt = datetime.now(timezone('CET'))
         onTime = (translation.deadline_time + timedelta(minutes=15))>translation.submittedAt
         print(onTime)
         translation.onTime = onTime
@@ -191,7 +192,7 @@ def accept_page(translationId):
 def accept_translation(translationId,translatorId):
     translation = Translation.query.get(translationId)
     translation.translatorId=translatorId
-    translation.acceptedAt=datetime.utcnow()
+    translation.acceptedAt=datetime.now(timezone('CET'))
     db.session.commit()
     session['translator_page'] = 'translations'
     session['translation'] = None

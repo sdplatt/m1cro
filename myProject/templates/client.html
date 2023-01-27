@@ -204,10 +204,16 @@
             <p><span class="fw-bold">Translator:</span> {{session['trans-page'].email or "Not assigned yet"}}</p>
             <p><span class="fw-bold">Deadline:</span> {{session['trans-page'].deadline}}</p>
             {% set crit = session['trans-page'].rejectCriteria %}
-            <p><span class="fw-bold">Reject Critera:</span> {{"No submission Possible" if crit==1 else "you may face penalty depending of contract conditions"}}</p>
-            <p><span class="fw-bold">Created At:</span> {{session['trans-page'].createdAt}}</p>
-            <p><span class="fw-bold">Accepted At:</span> {{session['trans-page'].acceptedAt or 'Not Accepted Yet'}}</p>
-            <p><span class="fw-bold">Submitted At:</span> {{session['trans-page'].submittedAt or 'Not Submitted Yet'}}</p>
+            <p><span class="fw-bold">Reject Critera:</span> {{"No submission Possible" if crit==1 else "Translator faces 50 per cent penalty"}}</p>
+            {% if session['trans-page'].createdAt %}
+            <p><span class="fw-bold">Created At:</span> {{session['trans-page'].createdAt.strftime('%d %b %Y %H:%M')}}</p>
+            {% endif %}
+            {% if session['trans-page'].acceptedAt %}
+            <p><span class="fw-bold">Accepted At:</span> {{session['trans-page'].acceptedAt.strftime('%d %b %Y %H:%M') or 'Not Accepted Yet'}}</p>
+            {% endif %}
+            {% if session['trans-page'].submittedAt %}
+            <p><span class="fw-bold">Submitted At:</span> {{session['trans-page'].submittedAt.strftime('%d %b %Y %H:%M')}}</p>
+            {% endif %}
             {%if session['trans-page'].onTime!=None %}
             <p><span class="fw-bold">On time:</span> {{"Yes" if session['trans-page'].onTime else "No"}}</p>
             {%endif%}

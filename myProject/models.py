@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
 import uuid
 from datetime import datetime
+from pytz import timezone
 import os
 import requests
 import json
@@ -54,7 +55,7 @@ class Translation(db.Model,UserMixin):
     translation = db.Column(db.String)
     translatorId = db.Column(db.Integer,db.ForeignKey('translators.id'))
     rating = db.Column(db.Float())
-    createdAt = db.Column(db.DateTime,default=datetime.utcnow)
+    createdAt = db.Column(db.DateTime,default=datetime.now(timezone('CET')))
     acceptedAt = db.Column(db.DateTime)
     submittedAt = db.Column(db.DateTime)
     onTime = db.Column(db.Boolean)

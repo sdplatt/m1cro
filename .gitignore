@@ -3,3 +3,5 @@ flask_session
 migrations
 myenv
 .env
+*.md
+*.DS_Store

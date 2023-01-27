@@ -6,6 +6,7 @@ from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
+from pytz import timezone
 import os
 
 min_price = 0.025 #will come from query based on number of matching translators - for now hardcode
@@ -120,7 +121,9 @@ def home():
         words = my_translation['words']
         if(price/words>min_price):
             translation = Translation.query.get(my_translation['id'])
-            now = datetime.utcnow()
+            now = datetime.now(timezone('CET'))
+            current_time = now.strftime("%H:%M")
+
             deadline = now + timedelta(minutes=int(my_translation['deadline'])*30)
             translation.postProcess(getPriceForm.price.data)
             translation.deadline_time = deadline
@@ -141,7 +144,7 @@ def home():
             Translation: {my_translation['language_from']} to {my_translation['language_to']} <br>
             Price: {getPriceForm.price.data} <br>
             Total words: {words} <br>
-            Deadline: {deadline} <br>
+            Deadline: {deadline.strftime("%H:%M")} <br>
             <br>
             <p>
             Click <a href="{request.base_url}translator/accept-page/{my_translation['id']}">here</a> to accept or reject the translation.
@@ -163,8 +166,8 @@ def home():
             translation.botId = bot.id
             translation.postProcess(getPriceForm.price.data)
             translation.translation = res
-            translation.acceptedAt=datetime.utcnow()
-            translation.submittedAt=datetime.utcnow()
+            translation.acceptedAt=datetime.now(timezone('CET'))
+            translation.submittedAt=datetime.now(timezone('CET'))
             db.session.commit()
             if(session.get('popup_close')):
                 session['popup_close'] = None
