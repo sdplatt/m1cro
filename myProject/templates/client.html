@@ -187,7 +187,7 @@
         margin-block-end:0.4rem ;
     }
 </style>
-<p style="text-align: center;">Hello Guten Tag Здравствуйте clientName, clientEmail </p>
+<p style="text-align: center;">Hello Guten Tag Здравствуйте ....! </p>
 <div style="display: grid; justify-content: end;">
 <a href="/logout" class="ms-4">LOGOUT</a>
 </div>
@@ -252,7 +252,8 @@
                 <p>Rating: {{session['trans-page'].rating}}</p>
                 {%endif%}
                 </div>
-                <p>If you need to proofread it why not try our other service? <a href='#'> link </a></p>
+                <p><span style="color:blue"> If you need to proofread it why not try our other service? <a href='#'> link </a></span></p>
+                <p><span style="color:blue"> Problem with the translation? Before submitting talk to a member of our team here link</span></p>
             {%endif%}
         </div>
         {%else%}
@@ -308,8 +309,7 @@
                 }else{
                     createTranslationForm.submit()
                 }
-            })
-            
+            })       
         </script>
         {% else %}
         {% set currTrans = session['curr_translation'] %}

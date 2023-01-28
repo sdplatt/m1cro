@@ -285,7 +285,7 @@
         <div class="tranlation-details">
             <p><span class="fw-bold">Text:</span> {{session['trans-page'].text}}</p>            
             <p><span class="fw-bold">Status:</span> {{session['trans-page'].status}}</p>
-            <p><span class="fw-bold">Deadline:</span> {{session['trans-page'].deadline}}</p>
+            <p><span class="fw-bold">Deadline:</span> {{session['trans-page'].deadline*30}} minutes</p>
             {% set crit = session['trans-page'].rejectCriteria %}
             <p><span class="fw-bold">Reject Critera:</span> {{"If late no submission possible" if crit==1 else "You may face penalty depending of contract conditions"}}</p>
             {% if session['trans-page'].createdAt %}

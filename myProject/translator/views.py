@@ -104,19 +104,18 @@ def home():
         translation.onTime = onTime
         db.session.commit()
         msg = Message(
-                'Translation submitted by translator',
+                'Translation submitted by the translator',
                 sender ='pcktlwyr@gmail.com',
                 recipients = [translation.client.email]
                )
         msg.html = f'''
-        <h3>Text: </h3>
+        <h3>Source text: </h3>
         <p>{translation.text}</p>
-        <h3>More Details: </h3>
-        Transaltor's Email: {translation.translator.email} <br>
+        <h3> More Details: </h3>
+        Translator's email: {translation.translator.email} <br>
         Translation: {translation.language_from} to {translation.language_to} <br>
         Price: {translation.price}<br>
         Words: {translation.words}<br>
-        <br>
         '''
         mail.send(msg)
         return redirect(url_for('translator.show_translation',id=translation.id))

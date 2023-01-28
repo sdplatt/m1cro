@@ -192,14 +192,17 @@ def home():
                 recipients = [current_user.email]
                 )
             msg.html = f'''
-            <h3>Text</h3>
+            <div style="color:black">
+            <h3>Source text</h3>
             <p>{my_translation['text']}</p>
-            <h3>More Details: </h3>
-            Translator's Email: {bot.email} <br>
+            <h3>More details: </h3>
+            Translator's email: {bot.email} <br>
             Translation: {my_translation['language_from']} to {my_translation['language_to']} <br>
             Price: {getPriceForm.price.data} <br>
             Total words: {words} <br>
             <br>
+            Click HERE to view and review the translation.
+            </div>
             '''
             mail.send(msg)
 
