@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from flask_session import Session
 from flask_mail import Mail
 
+
 app=Flask(__name__)
 
 app.config["SESSION_PERMANENT"] = False
@@ -32,6 +33,17 @@ Migrate(app,db,render_as_batch=True)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'client.home'
+
+app.config["LANGUAGES"] = ['en', 'de', 'ru']
+app.config["MIN_WORD_PRICE"] = 0.025
+app.config["MAX_WORD_LENGTH"] = 350
+app.config["SITE_CURRENCY"] = 'EUR'
+app.config["SITE_TIMEZONE"] = 'Europe/Berlin'
+app.config["SITE_TITLE"] = 'I/T 2030'
+app.config["SITE_ADMIN"] = "office@aoo.com"
+app.config["IS_PROOFREADING"] = False
+app.config["HAS_TARGET_COMPARE"] = False
+
 
 from myProject.client.views import client
 from myProject.translator.views import translator

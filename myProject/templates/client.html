@@ -252,6 +252,7 @@
                 <p>Rating: {{session['trans-page'].rating}}</p>
                 {%endif%}
                 </div>
+                <p>If you need to proofread it why not try our other service? <a href='#'> link </a></p>
             {%endif%}
         </div>
         {%else%}
@@ -386,26 +387,31 @@
         z-index: 2;
         border-radius: 10px;
     }
+
+    .no-bullet {
+        list-style-type: none;
+    }
 </style>
 <div class="popup">
     <div class="popup-content p-4">
-        Translation Details: 
-        <ul>
-            <li>From {{session['curr_trans']['language_from']}} to {{session['curr_trans']['language_to']}}</li>
-            <li>Deadline: {{session['curr_trans']['deadline']}}</li>
-            <li>Text: {{session['curr_trans']['text'][:150]}}...</li>
-            <li>Words: {{session['curr_trans']['words']}}</li>
-            <li>Avg. Price: ${{session['avg_price']}}</li>
+        Confirm your details:
+        <ul class="no-bullet">
+            <li>{{session['curr_trans']['language_from'].capitalize()}} to {{session['curr_trans']['language_to'].capitalize()}}</li>
+            <li><span style='color: red'>Deadline: {{session['deadline_as_time']}} CET </span></li>
+            <li><span style='color: blue'>Excerpt: {{session['curr_trans']['text'][:150]}} ...</span></li>
+            <li>{{session['curr_trans']['words']}} words</li>
+            <li>Avg. TOTAL Price, Candidates: EUR {{session['avg_price']}}</li>
+            <li>Min. TOTAL Price, Candidates: EUR {{session['min_price']}}</li>
         </ul>
         <form method="POST" id="add_price_form">
             {{getPriceForm.hidden_tag()}}
             <div class="mb-3">
-                {{getPriceForm.price.label(class='form-label')}}
+                Your {{getPriceForm.price.label(class='form-label')}} EUR
                 {{getPriceForm.price(class='form-control',id="translation-price")}}
             </div>
             <p id="error" class="text-danger"></p>
             <button class="btn btn-success" >Make Request</button>
-            <a class="btn btn-secondary" href="/remove-popup/{{translation.id}}">Close</a>
+            <a class="btn btn-secondary" href="/remove-popup/{{translation.id}}">Go back</a>
         </form>
     </div>
 </div>

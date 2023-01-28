@@ -1,4 +1,4 @@
-from flask import redirect,url_for,render_template,request,Blueprint,session
+from flask import redirect,url_for,render_template,request,Blueprint,session,current_app
 from myProject.models import Client,Translation,Status,Bot
 from myProject.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm,GetPriceForm
 from myProject import db,mail
@@ -7,13 +7,7 @@ from flask_mail import Message
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 from pytz import timezone
-import os
-
-min_price = 0.025 #will come from query based on number of matching translators - for now hardcode
-max_word_len = 350 # config this
-the_site = 'Lucky Translations'
-the_site_email = 'office@luckt.com'
-the_site_currency = 'EUR'
+import time
 
 client = Blueprint('client',__name__)
 my_translation = None
@@ -21,7 +15,14 @@ my_translation = None
 def home():
     if not session.get('page'):
         session['page'] = 'login'
-
+    #CONFIG VARS
+    max_default_word_len = current_app.config["MAX_WORD_LENGTH"]
+    min_word_price = current_app.config["MIN_WORD_PRICE"]
+    site_time_zone = current_app.config["SITE_TIMEZONE"]
+    site_title = current_app.config["SITE_TITLE"]
+    site_admin = current_app.config["SITE_ADMIN"]
+    site_currency = current_app.config["SITE_CURRENCY"]
+    grace_period = 10
     # REGISTERATION FORM
     registerForm = RegisterationForm()
     if registerForm.validate_on_submit():
@@ -70,7 +71,7 @@ def home():
             db.session.commit()
             print(id)
             msg = Message(
-                'Hello',
+                'Hello from {site_title}',
                 sender ='pcktlwyr@gmail.com',
                 recipients = [user.email]
                )
@@ -88,7 +89,7 @@ def home():
         text = translationForm.text.data
         words = len(text.split(' '))
         
-        if(words>max_word_len):
+        if(words>max_default_word_len):
             session['error'] = f'Word limit is 350. You used {words} words.'
             session['curr_translation'] = {'l_from':translationForm.language_from.data,
                                             'l_to':translationForm.language_to.data,
@@ -111,7 +112,10 @@ def home():
             db.session.commit()
             session['error'] = None
             session['popup'] = True
-            session['avg_price'] = '0.08'
+            session['avg_price'] = "{:.2f}".format(0.08*words)
+            session['min_price'] = "{:.2f}".format(min_word_price*words)
+            now = datetime.now(timezone(site_time_zone))
+            session['deadline_as_time'] = (datetime.now(timezone(site_time_zone)) + timedelta(minutes=int(grace_period) + int(translationForm.deadline.data)*30)).strftime("%H:%M")
             my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text,"words":words}
             session['curr_trans'] = my_translation
         return redirect(url_for('client.home'))
@@ -120,25 +124,24 @@ def home():
     if getPriceForm.validate_on_submit():
         price = getPriceForm.price.data
         words = my_translation['words']
-        if(price/words>min_price):
+        if(price/words>=min_word_price):
+            """if at or above threshold call humans"""
             translation = Translation.query.get(my_translation['id'])
-            now = datetime.now(timezone('CET'))
-            current_time = now.strftime("%H:%M")
-            #add betatestas here
+            now = datetime.now(timezone(site_time_zone))
             beta_testers = ['exitnumber3@mail.ru']
-            candidates = ['publicvince102@gmail.com','deruen@proton.me']
-            new_candidates = list(set(beta_testers + candidates)) #use later
+            candidates = ['publicvince102@gmail.com','deruen@proton.me', 'exitnumber3@mail.ru', 'publicvince103@gmail.com']
+            #new_candidates = list(set(beta_testers + candidates)) #use later
             if current_user.email in candidates:
                 candidates.remove(current_user.email)
-            deadline = now + timedelta(minutes=int(my_translation['deadline'])*30)
+            deadline = datetime.now(timezone(site_time_zone)) + timedelta(minutes=int(grace_period) + int(my_translation['deadline'])*30)
             translation.postProcess(getPriceForm.price.data)
-            translation.deadline_time = deadline
+            translation.deadline_time = deadline.astimezone(timezone(site_time_zone)) #Now ALL CET!!!
             db.session.commit()
             if(session.get('popup_close')):
                 session['popup_close'] = None
             words = len(my_translation['text'].split(' '))
             msg = Message(
-                'A Job offer from {the_site}',
+                '''A Job offer from {site_title}''',
                 sender ='pcktlwyr@gmail.com',
                 bcc = candidates
                 )
@@ -146,34 +149,39 @@ def home():
             <h3>Text</h3>
             <p>{my_translation['text']}</p>
             <h3>More Details: </h3>
-            Client's Email: {current_user.email} <br>
+            Client's email: {current_user.email} <br>
             Translation: {my_translation['language_from']} to {my_translation['language_to']} <br>
-            Price: {getPriceForm.price.data} <br>
+            Price: {site_currency} {getPriceForm.price.data} <br>
             Total words: {words} <br>
-            Deadline: {deadline.strftime("%H:%M")} <br>
+            Current_time: {now.strftime("%H:%M")} CET <br>
+            Deadline: {deadline.strftime("%H:%M")} CET <br>
             <br>
             <p>
             Click <a href="{request.base_url}translator/accept-page/{my_translation['id']}">here</a> to accept or reject the translation.
+            Please deliver on time. You will not get another chance! Scroll down for other languages
             </p>
             '''
             mail.send(msg)
         else:
+            """else call bot, just one so far"""
             bot = Bot.query.get(1)
             l_to = my_translation['language_to']
             api_lto = "en" if l_to=='english' else "ru" if l_to=='russian' else "de"
             obj = {'l_to':api_lto,'text':my_translation['text']}
             try:
+                #delay here using asyncio, threading, or multiprocessing libraries. non blocking!
                 res = bot.translate(obj)
             except:
-                #indicates a problem with the API call
-                res = "Please contact the help desk on {the_site_email}"
+                #indicates a problem with the API call try to regenerate 12 hour key here
+                #call getNewKey() or have a worker do it every 24 hours export IAMTOKEN=$(yc iam create-token) export FOLDERID
+                res = '''Please contact the help desk on {site_admin}'''
 
             translation = Translation.query.get(my_translation['id'])
             translation.botId = bot.id
             translation.postProcess(getPriceForm.price.data)
             translation.translation = res
-            translation.acceptedAt=datetime.now(timezone('CET'))
-            translation.submittedAt=datetime.now(timezone('CET'))
+            translation.acceptedAt=datetime.now(timezone(site_time_zone))
+            translation.submittedAt=datetime.now(timezone(site_time_zone))
             db.session.commit()
             if(session.get('popup_close')):
                 session['popup_close'] = None

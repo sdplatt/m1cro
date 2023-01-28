@@ -41,7 +41,6 @@ class Translation(db.Model,UserMixin):
 
     __tablename__ = 'translations'
     clients = db.relationship(Client)
-
     id = db.Column(db.Integer,primary_key=True)
     client_id = db.Column(db.Integer,db.ForeignKey('clients.id'),nullable=False)
     language_from = db.Column(db.String)
