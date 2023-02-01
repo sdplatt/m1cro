@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,SubmitField,ValidationError,SelectField,RadioField,TextAreaField,IntegerField,DecimalField,DateTimeField
-from wtforms.validators import DataRequired,Email,EqualTo
+from wtforms import StringField,PasswordField,SubmitField,ValidationError,SelectField,RadioField,TextAreaField,IntegerField,FormField
+from wtforms.validators import DataRequired,Email,EqualTo, Length, Optional,Regexp
+import re
 from myProject.models import Client,Translator
 from datetime import datetime
 import pytz
@@ -40,6 +41,15 @@ class ChangePassForm(FlaskForm):
     pass_confirm = PasswordField('Confirm Password',validators=[DataRequired()])
     submit = SubmitField('Register')
 
+"""
+This class is for Entering a glossarypair in the create translation field
+Do not care what they add as long as not malicious/ escape 
+"""
+class GlossaryPairForm(FlaskForm):
+    
+    sourceText = StringField('SourceText', validators=[Length(max=256), Optional()])
+    targetText = StringField('TargetText', validators=[Length(max=256), Optional()])
+
 class TranslationForm(FlaskForm):
     berlin_tz = pytz.timezone("Europe/Berlin")
     time_now  = datetime.now(berlin_tz).strftime("%d %M %Y %H:%M")
@@ -48,6 +58,15 @@ class TranslationForm(FlaskForm):
     
     language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],default="german", validators=[DataRequired()])
     language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],default="english", validators=[DataRequired(),languageNotEqualTo])
+
+    """
+    Adding the new glossary pair form here
+    """
+    glossary_pair = FormField(GlossaryPairForm, label='')
+    add_glossary_pair = SubmitField('Add Another Glosssary pair')
+    """
+    
+    """
     deadline = RadioField("Deadline",choices=deadlineChoices,validators=[DataRequired()])
     rejectCriteria = RadioField('Reject Criteria',choices=[(1,"Reject"),(2,"50% Discount"),(3,"No Action")],default=1, validators=[DataRequired()])
     text = TextAreaField("Source text",validators=[DataRequired()])
@@ -75,3 +94,5 @@ class AddServiceForm(FlaskForm):
 class SubmitTranslationForm(FlaskForm):
     translation = TextAreaField("Translation",validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+

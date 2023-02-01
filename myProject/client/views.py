@@ -1,13 +1,14 @@
 from flask import redirect,url_for,render_template,request,Blueprint,session,current_app
 from myProject.models import Client,Translation,Status,Bot
-from myProject.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm,GetPriceForm
+from myProject.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm,GetPriceForm, GlossaryPairForm
 from myProject import db,mail
 from flask_login import login_user, logout_user, current_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 from pytz import timezone
-import time
+from jinja2 import Template
+
 
 client = Blueprint('client',__name__)
 my_translation = None
@@ -74,7 +75,7 @@ def home():
                 'Hello from {site_title}',
                 sender ='pcktlwyr@gmail.com',
                 recipients = [user.email]
-               )
+            )
             msg.body = f'Click the link below to change your password:  {request.base_url}change/{id}'
             mail.send(msg)
             return redirect(url_for('client.home'))
@@ -83,8 +84,16 @@ def home():
 
     # translations form
     translationForm = TranslationForm()
-    
+    """
+    GLoassry Pair form is the add_glossary_pair i the Translation form which serves as the DyanmicForm
+    is used to dynamically add more instances of the glossaryPair in the Translatin create frm
+    """
     if translationForm.validate_on_submit():
+
+        if translationForm.add_glossary_pair.data:
+            session['glossaryPairs'] = session.get('glossaryPairs',0) +1
+            return redirect(url_for('client.home'))
+
         global my_translation
         text = translationForm.text.data
         words = len(text.split(' '))
@@ -215,7 +224,7 @@ def home():
         translations = Client.query.filter_by(id=current_user.id).first().translations
     except:
         translations = []
-    return render_template('client.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,translationForm=translationForm,translations=translations,getPriceForm=getPriceForm,translation=my_translation)
+    return render_template('client.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,translationForm=translationForm,translations=translations,getPriceForm=getPriceForm,translation=my_translation, glossaryPairs=session.get('glossaryPairs', 3))
 
 @client.route('/logout')
 def logout():
@@ -344,3 +353,17 @@ def submit_review(id):
 def delete_trans():
     bot = Bot.query.get(1)
     return bot.email
+
+"""
+A route for allow new glossaryEntries to be added to the database while the form is being processed for the transaltion request
+The create translation form
+"""
+@client.route('/add_glossary_pair',methods=['POST'])
+def add_glossary_pair():
+    sourceText = request.form['sourceText']
+    targetText= request.form['targetText']
+    glossaryPair = GlossaryPair(sourceText=sourceText, targetText=targetText)
+    db.session.add(glossaryPair)
+    db.session.commit()
+    #where do we go after this? May need to add another one
+    return "Glossary EPair submitted successfully!"

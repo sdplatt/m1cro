@@ -12,6 +12,26 @@ import json
 def load_user(user_id):
     return Client.query.get(user_id)
 
+class GlossaryPair(db.Model,UserMixin):
+    """
+    A database table to track glossary entries made on the Create Translation form
+    Thru translationsId can track back to client or put clientID in table
+    keep the terms in a database to allow for client to build custom vocab over several projects
+    Each src target pair needs to be sent with a particualr translation and applies for a partocular language from to only
+    """
+    __tablename__ = 'glossary_pairs'
+    
+    id = db.Column(db.Integer,primary_key=True)
+    sourceText=db.Column(db.String(255),nullable=True)
+    targetText=db.Column(db.String(255),nullable=True)
+    translationId = db.Column(db.Integer,db.ForeignKey('translations.id'))
+
+    def __init__(self,sourceText,targetText):
+        # Each (src, tar) pair goes into the glossaryPairs list to be sent for MT /client email
+        self.sourceText = sourceText
+        self.targetText = targetText
+
+
 class Client(db.Model,UserMixin):
     
     __tablename__ = 'clients'
@@ -60,6 +80,7 @@ class Translation(db.Model,UserMixin):
     onTime = db.Column(db.Boolean)
     rejectCriteria = db.Column(db.Integer,default=1)
     botId=db.Column(db.Integer,db.ForeignKey('bots.id'))
+    glosssaryPairs = db.relationship('GlossaryPair',backref="translation",lazy=True)
 
     def __init__(self,client_id,l_from,l_to,deadline,text,statusId,rejectCriteria,words):
         self.client_id = client_id
@@ -157,8 +178,8 @@ class Bot(db.Model,UserMixin):
     
 
     # API call will go to separate server
-    # ytranslate(JSONobject)
-    #returns object from yandex or dummy text 
+    # yt(JSON)
+    # Object can be constructed here exceptdoes it work with glossaryData?  
     def translate(self,obj):
         target_language = obj['l_to']
         texts = [obj['text']]
@@ -171,7 +192,6 @@ class Bot(db.Model,UserMixin):
         #             "translatedText": "Jude",
         #             "exact": False,}]}}
 
-        glossaryConfig = json.dumps({"glossaryData": {"glossaryPairs": [{"sourceText": "jeweler", "translatedText": "Uhrmacher", "exact": False}]}})
         body = {
             "targetLanguageCode": target_language,
             "texts": texts,
@@ -190,4 +210,9 @@ class Bot(db.Model,UserMixin):
             headers = headers
         )
 
-        return json.loads(response.text)['translations'][0]['text']        
+        return json.loads(response.text)['translations'][0]['text']
+
+
+
+
+    
