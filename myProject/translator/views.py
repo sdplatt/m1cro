@@ -180,10 +180,14 @@ def change(id):
 @translator.route('/accept-page/<translationId>',methods=['GET','POST'])
 def accept_page(translationId):
     translation = Translation.query.get(translationId)
+    time_diff = translation.deadline_time - datetime.now(timezone('CET'))
+    # deadline_in_minutes = str(time_diff.total_seconds() / 60)
+    # deadline_in_minutes = datetime.now(timezone('CET'))
     if(translation.translatorId):
         return "Sorry! The translation has already been allotted"
     else:
         session['translation'] = {"id":translation.id,"language_from":translation.language_from,"language_to":translation.language_to,'price':translation.price,"deadline":translation.deadline_time,"text":translation.text}
+        # session['translation'].append({"deadline_in_minutes": deadline_in_minutes})
         session['translator_page'] = 'accept'
         return redirect(url_for('translator.home'))
 

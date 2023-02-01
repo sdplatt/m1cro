@@ -58,7 +58,7 @@ class Translation(db.Model,UserMixin):
     acceptedAt = db.Column(db.DateTime)
     submittedAt = db.Column(db.DateTime)
     onTime = db.Column(db.Boolean)
-    rejectCriteria = db.Column(db.Integer)
+    rejectCriteria = db.Column(db.Integer,default=1)
     botId=db.Column(db.Integer,db.ForeignKey('bots.id'))
 
     def __init__(self,client_id,l_from,l_to,deadline,text,statusId,rejectCriteria,words):
@@ -75,10 +75,10 @@ class Translation(db.Model,UserMixin):
         self.price = price
 
 class Status(db.Model,UserMixin):
-
     __tablename__ = 'status'
+    # choices=[('new', 'new'), ('notpaid', 'AwaitingPayment'), ('pending', 'PendingTranslatorAcceptance'),('accepted', 'TranslatorAccepted'), ('submitted', 'TranslatorSubmitted'), ('completed', 'TranslationRated'),('error', 'SomeError')]
     id = db.Column(db.Integer,primary_key=True)
-    name = db.Column(db.String,nullable=False)
+    name = db.Column(db.String, db.Enum("new", "notpaid", "pending", "accepted", "submitted", "completed", "error"))
 
     def __init__(self,name):
         self.name = name
@@ -155,16 +155,29 @@ class Bot(db.Model,UserMixin):
         self.api = api
         self.email = email
     
+
+    # API call will go to separate server
+    # ytranslate(JSONobject)
+    #returns object from yandex or dummy text 
     def translate(self,obj):
         target_language = obj['l_to']
         texts = [obj['text']]
         IAM_TOKEN=os.getenv('IAMTOKEN')
         folder_id=os.getenv('FOLDERID')
 
+        # glossData = {
+        #     "glossaryData": {"glossaryPairs": [{
+        #             "sourceText": "jeweler",
+        #             "translatedText": "Jude",
+        #             "exact": False,}]}}
+
+        glossaryConfig = json.dumps({"glossaryData": {"glossaryPairs": [{"sourceText": "jeweler", "translatedText": "Uhrmacher", "exact": False}]}})
         body = {
             "targetLanguageCode": target_language,
             "texts": texts,
             "folderId": folder_id,
+            #"glossaryConfig": glossaryConfig,
+            "speller": True
         }
 
         headers = {

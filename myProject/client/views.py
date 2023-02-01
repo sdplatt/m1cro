@@ -97,7 +97,7 @@ def home():
                                             'text' : translationForm.text.data,
                                             'rejectCriteria':int(translationForm.rejectCriteria.data)}
         else:
-            status = Status('new')
+            status = Status('new') #status starts at new 
             db.session.add(status)
             db.session.commit()
             translation = Translation(client_id=current_user.id,
@@ -163,8 +163,8 @@ def home():
             '''
             mail.send(msg)
         else:
-            """else call bot, just one so far"""
-            bot = Bot.query.get(1)
+            """else call bot, Can tis be farmed out"""
+            bot = Bot.query.get(1) #1 DB
             l_to = my_translation['language_to']
             api_lto = "en" if l_to=='english' else "ru" if l_to=='russian' else "de"
             obj = {'l_to':api_lto,'text':my_translation['text']}

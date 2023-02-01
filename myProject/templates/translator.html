@@ -10,7 +10,7 @@
     }
     .register-form,.login-form{
         width: 30%;
-        background-color: rgb(188, 221, 223);
+        background-color: #757575; /* rgb(188, 221, 223); */
         padding: 30px;
         margin: 30px auto;
         border-radius: 15px;
@@ -286,8 +286,7 @@
             <p><span class="fw-bold">Text:</span> {{session['trans-page'].text}}</p>            
             <p><span class="fw-bold">Status:</span> {{session['trans-page'].status}}</p>
             <p><span class="fw-bold">Deadline:</span> {{session['trans-page'].deadline*30}} minutes</p>
-            {% set crit = session['trans-page'].rejectCriteria %}
-            <p><span class="fw-bold">Reject Critera:</span> {{"If late no submission possible" if crit==1 else "You may face penalty depending of contract conditions"}}</p>
+            <!-- RejectCriteria removed -->
             {% if session['trans-page'].createdAt %}
             <p><span class="fw-bold">Created At:</span> {{session['trans-page'].createdAt.strftime('%d %b %Y %H:%M')}}</p>
             {% endif %}
@@ -338,8 +337,9 @@
 <div class="page">
     <div class="details">
         <h4>Task: {{session['translation']['language_from']}} to {{session['translation']['language_to']}}</h4>
-        <h4>Price: {{session['translation']['price']}}</h4>
-        <h4>Deadline: {{session['translation']['deadline']}}</h4>
+        <h4>Price: EUR {{session['translation']['price']}}</h4>
+        <h4>Deadline: {{session['translation']['deadline'].strftime('%H:%M %d %b %Y')}}</h4>
+        <h4>{{session['translation']['deadline_in_minutes']}}</h4>
         <p>{{session['translation']['text']}}</p>
         <a href="/translator/accept/{{session['translation']['id']}}/{{current_user.id}}" class="btn btn-info text-white">Accept</a>
         <a href="/translator/reject" class="btn btn-danger">Reject</a>

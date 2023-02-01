@@ -7,13 +7,14 @@
         justify-content: space-around;
         width: 90%;
         margin: auto;
+        
     }
     .register-form,.login-form{
-        width: 30%;
-        background-color: rgb(188, 221, 223);
-        padding: 30px;
+        width: 60%;
+        background-color: #757575; /* rgb(188, 221, 223); */
+        padding: 25px;
         margin: 30px auto;
-        border-radius: 15px;
+        border-radius: 10px;
     }
     .table{
         background-color: rgb(188, 221, 223)
@@ -26,7 +27,7 @@
 </style>
 {% if session['user'] != 'client' %}
 <div class="container">
-    <h3>Client </h3>
+    <h3>Welcome Clients! </h3>
     <!-- <a href="/translator" class="text-center" target="_blank">I am a translator</a> -->
     {% if session['page'] == 'forgot' %}    
     <div class="register-form">
@@ -108,8 +109,8 @@
                 </p>
                 {{loginForm.submit(class='btn btn-primary mb-3')}}
             </form>
-            <a href="/forgot">Forgot Password</a>
-            <a href="/register">Register</a>
+            <a class="btn btn-dark" href="/forgot">Forgot Password</a>
+            <a class="btn btn-dark" href="/register">Register</a>
         </div>
         {%endif%}
     </div>
@@ -150,6 +151,7 @@
         border-top: 1px solid rgba(0, 0, 0, 0.14);
         border-left: 2px solid rgba(0, 0, 0, 0.14);
         border-right: 1px solid rgba(0, 0, 0, 0.14);
+        background-color:#BDBDBD;
     }
     .translation{
         width: 100%;
@@ -163,6 +165,7 @@
         border-bottom: 1px solid rgba(0, 0, 0, 0.14);
         min-height: 80vh;
         position: relative;
+        background-color:#E0E0E0;
     }
     .translated-text{
         /* position: absolute;
@@ -172,6 +175,7 @@
     }
     .translated-text textarea{
         min-height: 180px;
+        background-color:#BDBDBD;
     }
     .all-heading{
         border-bottom: 1px solid rgba(0, 0, 0, 0.14);
@@ -186,14 +190,33 @@
         margin-block-start:0.4rem ;
         margin-block-end:0.4rem ;
     }
+    .form.control {
+    background-color: #757575;
+    } 
+
+    #create-translation input[type=text] {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px blue;
+    }
+
+    .gray50 {
+    background-color: #757575;
+    }
+  
+
 </style>
-<p style="text-align: center;">Hello Guten Tag Здравствуйте ....! </p>
-<div style="display: grid; justify-content: end;">
-<a href="/logout" class="ms-4">LOGOUT</a>
+
+
+<div style="text-align:right">
+<a style="display: inline;" href="#" class="btn btn-light">TOGGLE LANGUAGE</a>
+<a style="display: inline;" href="/logout" class="btn btn-primary">LOGOUT</a>
 </div>
 <div class="translations my-4">
     <div class="all-translations">
-        <div class="all-heading py-2"><h4 class="text-center">All Translations</h4><a href="/create-translation" class="text-dark new-btn">Create New</a></div>
+        <div class="all-heading py-2">
+        <p class="text-center"><a href="/create-translation" class="btn btn-outline-dark">New request</a>
+        </p></div>
         {% for translation in translations[::-1] %}
         <a href="{{url_for('client.show_translation',id=translation.id)}}" class="text-decoration-none text-black">
             <div class="translation px-4 py-3">
@@ -212,9 +235,7 @@
             <p><span class="fw-bold">Status:</span> {{session['trans-page'].status}}</p>
             {% endif %}
             <p><span class="fw-bold">Translator:</span> {{session['trans-page'].email or "Not assigned yet"}}</p>
-            <p><span class="fw-bold">Deadline:</span> {{session['trans-page'].deadline}}</p>
-            {% set crit = session['trans-page'].rejectCriteria %}
-            <p><span class="fw-bold">Reject Critera:</span> {{"No submission Possible" if crit==1 else "Translator faces 50 per cent penalty"}}</p>
+            <!-- RejectCriteria removed -->
             {% if session['trans-page'].createdAt %}
             <p><span class="fw-bold">Created At:</span> {{session['trans-page'].createdAt.strftime('%d %b %Y %H:%M')}}</p>
             {% endif %}
@@ -223,6 +244,9 @@
             {% endif %}
             {% if session['trans-page'].submittedAt %}
             <p><span class="fw-bold">Submitted At:</span> {{session['trans-page'].submittedAt.strftime('%d %b %Y %H:%M')}}</p>
+            {% endif %}
+            {% if session['trans-page'].createdAt %}
+            <p><span class="fw-bold">Due by:</span> {{ (session['trans-page'].createdAt).strftime('%d %b %Y %H:%M')}} + {{session['trans-page'].deadline*30}} mins</p>
             {% endif %}
             {%if session['trans-page'].onTime!=None %}
             <p><span class="fw-bold">On time:</span> {{"Yes" if session['trans-page'].onTime else "No"}}</p>
@@ -252,8 +276,16 @@
                 <p>Rating: {{session['trans-page'].rating}}</p>
                 {%endif%}
                 </div>
-                <p><span style="color:blue"> If you need to proofread it why not try our other service? <a href='#'> link </a></span></p>
-                <p><span style="color:blue"> Problem with the translation? Before submitting talk to a member of our team here link</span></p>
+                <br />
+                <div class="card gray50">
+                    <div class="card-body">
+                    <h5 class="card-title">Need a second look?</h5>
+                    <p> why not try our other service?</p> 
+                    <a href="#" class="btn btn-primary">Link</a>
+                    <p>or email us at office@test.com</p>
+                    </div>
+                </div>
+
             {%endif%}
         </div>
         {%else%}
@@ -272,10 +304,7 @@
                 {{translationForm.deadline.label(class='form-label')}}
                 {{translationForm.deadline(class='form-control radio-form')}}
             </div>
-            <div class="mb-3">
-                {{translationForm.rejectCriteria.label(class='form-label')}}
-                {{translationForm.rejectCriteria(class='form-control radio-form')}}
-            </div>
+            <!-- Replace reject criteria which starts as default 1 with a Add Terms field -->
             <div class="mb-3">
                 {{translationForm.text.label(class='form-label')}} <span id="word-count" class="ms-2 text-secondary"></span>
                 {{translationForm.text(class='form-control',rows=10,id="translation-text")}}
@@ -331,25 +360,25 @@
                     <option value="russian" {{'selected' if currTrans['l_to'] == 'russian' }}>Russian</option>
                 </select>
             </div>
-            Deadline
+            I need it back in..
             <div class="mb-3 form-control">
                 <input type="radio" name="deadline" value="1" id="1" {{'checked' if currTrans['deadline'] == '1' }}>
-                <label for="1">30  minutes</label><br>
+                <label for="1">30  minutes from submission</label><br>
                 <input type="radio" name="deadline"  value="2" id="2" {{'checked' if currTrans['deadline'] == '2' }}>
-                <label for="2">60  minutes</label><br>
+                <label for="2">60  minutes from submission</label><br>
                 <input type="radio" name="deadline" value="3"  id="3" {{'checked' if currTrans['deadline'] == '3' }}>
-                <label for="3">90  minutes</label><br>
+                <label for="3">90  minutes from submission</label><br>
                 <input type="radio" name="deadline" value="4"  id="4" {{'checked' if currTrans['deadline'] == '4' }}>
-                <label for="4">120  minutes</label><br>
+                <label for="4">120  minutes from submission</label><br>
             </div>
             Reject Criteria
             <div class="mb-3 form-control">
                 <input type="radio" name="rejectCriteria" value="1" id="1" {{'checked' if currTrans['rejectCriteria'] == 1 }}>
                 <label for="1">Strict No Late Submissions</label><br>
                 <input type="radio" name="rejectCriteria" value="2" id="2" {{'checked' if currTrans['rejectCriteria'] == 2 }}>
-                <label for="2">50% Discount</label><br>
+                <label for="2">Not in use</label><br>
                 <input type="radio" name="rejectCriteria" value="3" id="3" {{'checked' if currTrans['rejectCriteria'] == 3 }}>
-                <label for="3">No Action</label><br>
+                <label for="3">Not in use</label><br>
                 <!-- {{translationForm.rejectCriteria.label(class='form-label')}}
                 {{translationForm.rejectCriteria(class='form-control radio-form')}} -->
             </div>

@@ -1,7 +1,10 @@
 __pycache__
 flask_session
 migrations
+tests
 myenv
+venv
+venvm1cro
 .env
 *.md
 *.DS_Store

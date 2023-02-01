@@ -1,0 +1,27 @@
+{
+ "sourceLanguageCode": "en",
+ "targetLanguageCode": "id",
+ "format": "HTML",
+ "texts": [
+    "ПOnce upon a time a young man bought an ex
+pensive ring and requested that the following
+engraving appear on it: “To Mary from Henry.”
+The experienced jeweler advised the young fel
+low that the inscription read “To my beloved from
+Henry.”
+You never know just what might happen!."
+ ],
+ "folderId": "b1g7mdqlta9umrhfcnbv",
+ "glossaryConfig": {
+  "glossaryData": {
+   "glossaryPairs": [
+    {
+     "sourceText": "Held",
+     "translatedText": "catfish",
+     "exact": false
+    }
+   ]
+  }
+ },
+ "speller": true
+}
