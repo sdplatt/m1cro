@@ -1,5 +1,6 @@
+from flask_babel import gettext
 from flask import redirect,url_for,render_template,request,Blueprint,session,current_app
-from myProject.models import Client,Translation,Status,Bot
+from myProject.models import Client, GlossaryPair,Translation,Status,Bot
 from myProject.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm,GetPriceForm, GlossaryPairForm
 from myProject import db,mail
 from flask_login import login_user, logout_user, current_user
@@ -8,6 +9,7 @@ from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 from pytz import timezone
 from jinja2 import Template
+ 
 
 
 client = Blueprint('client',__name__)
@@ -66,17 +68,21 @@ def home():
     forgotPassForm = ForgotPassForm()
     if forgotPassForm.validate_on_submit():
         user = Client.query.filter_by(email=forgotPassForm.email.data).first()
-
+         
         if user is not None:
             id = user.changePassLink()
             db.session.commit()
             print(id)
+            basicGreeting = gettext("Hello from")
+            subject = "{} {}".format(basicGreeting, site_title)
+            sender = "{}".format(site_admin) 
             msg = Message(
-                'Hello from {site_title}',
-                sender ='pcktlwyr@gmail.com',
+                subject,
+                sender =sender,
                 recipients = [user.email]
             )
-            msg.body = f'Click the link below to change your password:  {request.base_url}change/{id}'
+            changePasswordPrompt = gettext('Click the link below to change your password')
+            msg.body = f"{changePasswordPrompt}: {request.base_url}change/{id}"
             mail.send(msg)
             return redirect(url_for('client.home'))
     # USERS TABLE
@@ -92,21 +98,22 @@ def home():
 
         if translationForm.add_glossary_pair.data:
             session['glossaryPairs'] = session.get('glossaryPairs',0) +1
-            return redirect(url_for('client.home'))
+            # return redirect(url_for('client.home'))
 
         global my_translation
         text = translationForm.text.data
         words = len(text.split(' '))
         
         if(words>max_default_word_len):
-            session['error'] = f'Word limit is 350. You used {words} words.'
+            session['error'] = f"{gettext('Word limit is')} {max_default_word_len}. {gettext('You have {words} words.')}"
             session['curr_translation'] = {'l_from':translationForm.language_from.data,
                                             'l_to':translationForm.language_to.data,
                                             'deadline':translationForm.deadline.data,
                                             'text' : translationForm.text.data,
                                             'rejectCriteria':int(translationForm.rejectCriteria.data)}
         else:
-            status = Status('new') #status starts at new 
+            #ELSE: Source is suffic. small good to go
+            status = Status('new') 
             db.session.add(status)
             db.session.commit()
             translation = Translation(client_id=current_user.id,
@@ -121,7 +128,7 @@ def home():
             db.session.commit()
             session['error'] = None
             session['popup'] = True
-            session['avg_price'] = "{:.2f}".format(0.08*words)
+            session['avg_price'] = "{:.2f}".format(0.08*words) #this will come from DB
             session['min_price'] = "{:.2f}".format(min_word_price*words)
             now = datetime.now(timezone(site_time_zone))
             session['deadline_as_time'] = (datetime.now(timezone(site_time_zone)) + timedelta(minutes=int(grace_period) + int(translationForm.deadline.data)*30)).strftime("%H:%M")
@@ -137,6 +144,7 @@ def home():
             """if at or above threshold call humans"""
             translation = Translation.query.get(my_translation['id'])
             now = datetime.now(timezone(site_time_zone))
+            #this information needs to be hidden!
             beta_testers = ['exitnumber3@mail.ru']
             candidates = ['publicvince102@gmail.com','deruen@proton.me', 'exitnumber3@mail.ru', 'publicvince103@gmail.com']
             #new_candidates = list(set(beta_testers + candidates)) #use later
@@ -172,7 +180,7 @@ def home():
             '''
             mail.send(msg)
         else:
-            """else call bot, Can tis be farmed out"""
+            """Call bot; Prepare DB first"""
             bot = Bot.query.get(1) #1 DB
             l_to = my_translation['language_to']
             api_lto = "en" if l_to=='english' else "ru" if l_to=='russian' else "de"
@@ -366,4 +374,4 @@ def add_glossary_pair():
     db.session.add(glossaryPair)
     db.session.commit()
     #where do we go after this? May need to add another one
-    return "Glossary EPair submitted successfully!"
+    return gettext("Glossary Pair submitted successfully!")

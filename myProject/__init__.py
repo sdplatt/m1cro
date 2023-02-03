@@ -5,9 +5,10 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_session import Session
 from flask_mail import Mail
-
+from flask_babel import Babel
 
 app=Flask(__name__)
+babel = Babel(app)
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -44,6 +45,15 @@ app.config["SITE_ADMIN"] = "office@aoo.com"
 app.config["IS_PROOFREADING"] = False
 app.config["HAS_TARGET_COMPARE"] = False
 
+
+# configure Babel with desired languages
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+app.config['BABEL_DEFAULT_TIMEZONE'] = 'Europe/Berlin'
+app.config['LANGUAGES'] = {
+    'en': {'flag': 'gb', 'name': 'English'},
+    'de': {'flag': 'de', 'name': 'Deutsch'},
+    'кг': {'flag': 'ru', 'name': 'рисский'}
+}
 
 from myProject.client.views import client
 from myProject.translator.views import translator

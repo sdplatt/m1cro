@@ -70,7 +70,7 @@ def home():
                 'Hello',
                 sender ='pcktlwyr@gmail.com',
                 recipients = [user.email]
-               )
+            )
             msg.body = f'Click the link below to change your password:  {request.base_url}/change/{id}'
             mail.send(msg)
             return redirect(url_for('translator.home'))
@@ -107,7 +107,7 @@ def home():
                 'Translation submitted by the translator',
                 sender ='pcktlwyr@gmail.com',
                 recipients = [translation.client.email]
-               )
+            )
         msg.html = f'''
         <h3>Source text: </h3>
         <p>{translation.text}</p>
@@ -184,8 +184,9 @@ def accept_page(translationId):
     # deadline_in_minutes = str(time_diff.total_seconds() / 60)
     # deadline_in_minutes = datetime.now(timezone('CET'))
     if(translation.translatorId):
-        return "Sorry! The translation has already been allotted"
+        return "Sorry, translation has already been assigned"
     else:
+        # WAIT! We do not want client.id == translator.id
         session['translation'] = {"id":translation.id,"language_from":translation.language_from,"language_to":translation.language_to,'price':translation.price,"deadline":translation.deadline_time,"text":translation.text}
         # session['translation'].append({"deadline_in_minutes": deadline_in_minutes})
         session['translator_page'] = 'accept'
@@ -203,7 +204,7 @@ def accept_translation(translationId,translatorId):
                 'Translation accepted by translator',
                 sender ='pcktlwyr@gmail.com',
                 recipients = [translation.client.email]
-               )
+    )
     msg.html = f'''
     <h3>Text: </h3>
     <p>{translation.text}</p>
