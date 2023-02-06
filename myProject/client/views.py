@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 from pytz import timezone
 from jinja2 import Template
 
-
 client = Blueprint('client',__name__)
 my_translation = None
 @client.route('/',methods=['GET','POST'])
@@ -89,19 +88,20 @@ def home():
 
     # translations form
     translationForm = TranslationForm()
+    if not session.get('glossary-pairs'):
+        session['glossary-pairs'] = 3
     """
     GLoassry Pair form is the add_glossary_pair i the Translation form which serves as the DyanmicForm
     is used to dynamically add more instances of the glossaryPair in the Translatin create frm
     """
     if translationForm.validate_on_submit():
-
-        if translationForm.add_glossary_pair.data:
-            session['glossaryPairs'] = session.get('glossaryPairs',0) +1
-            # return redirect(url_for('client.home'))
+        print("Hwllo worold")
 
         global my_translation
         text = translationForm.text.data
         words = len(text.split(' '))
+        translationForm.deadline.data =  30
+        translationForm.rejectCriteria.data = 1
         
         if(words>max_default_word_len):
             session['error'] = f"{gettext('Word limit is')} {max_default_word_len}. {gettext('You have {words} words.')}"
@@ -111,6 +111,7 @@ def home():
                                             'text' : translationForm.text.data,
                                             'rejectCriteria':int(translationForm.rejectCriteria.data)}
         else:
+            print("Hello")
             #ELSE: Source is suffic. small good to go
             status = Status('new') 
             db.session.add(status)
@@ -122,21 +123,30 @@ def home():
                                     text = translationForm.text.data,
                                     words = words,
                                     statusId=status.id,
-                                    rejectCriteria=int(translationForm.rejectCriteria.data))
+                                    rejectCriteria=int(translationForm.rejectCriteria.data)
+                                    )
             db.session.add(translation)
             db.session.commit()
+            for i in range(1,session.get('glossary-pairs')+1):
+                pair = GlossaryPair(sourceText=translationForm['glossary_pair_{}'.format(i)].sourceText.data,
+                                    targetText=translationForm['glossary_pair_{}'.format(i)].targetText.data,
+                                    translationId=translation.id)
+                db.session.add(pair)
+                db.session.commit()
             session['error'] = None
             session['popup'] = True
             session['avg_price'] = "{:.2f}".format(0.08*words) #this will come from DB
             session['min_price'] = "{:.2f}".format(min_word_price*words)
             now = datetime.now(timezone(site_time_zone))
             session['deadline_as_time'] = (datetime.now(timezone(site_time_zone)) + timedelta(minutes=int(grace_period) + int(translationForm.deadline.data)*30)).strftime("%H:%M")
-            my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text,"words":words}
+            glosaaryPairs = [f"{i.sourceText} -> {i.targetText}" for i in translation.glosssaryPairs]
+            my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text,"words":words,"glossaryPairs":glosaaryPairs}
             session['curr_trans'] = my_translation
         return redirect(url_for('client.home'))
 
     getPriceForm = GetPriceForm()
     if getPriceForm.validate_on_submit():
+        session['glossary-pairs'] = 3
         price = getPriceForm.price.data
         words = my_translation['words']
         if(price/words>=min_word_price):
@@ -145,7 +155,7 @@ def home():
             now = datetime.now(timezone(site_time_zone))
             #this information needs to be hidden!
             beta_testers = ['exitnumber3@mail.ru']
-            candidates = ['publicvince102@gmail.com','deruen@proton.me', 'exitnumber3@mail.ru', 'publicvince103@gmail.com']
+            candidates = ['publicvince102@gmail.com','deruen@proton.me', 'exitnumber3@mail.ru', 'publicvince103@gmail.com',"bansalpushkar100@gmail.com"]
             #new_candidates = list(set(beta_testers + candidates)) #use later
             if current_user.email in candidates:
                 candidates.remove(current_user.email)
@@ -171,6 +181,8 @@ def home():
             Total words: {words} <br>
             Current_time: {now.strftime("%H:%M")} CET <br>
             Deadline: {deadline.strftime("%H:%M")} CET <br>
+            <h4>Glossary Pairs</h4>
+            {','.join(my_translation['glossaryPairs'])}
             <br>
             <p>
             Click <a href="{request.base_url}translator/accept-page/{my_translation['id']}">here</a> to accept or reject the translation.
@@ -216,6 +228,8 @@ def home():
             Translation: {my_translation['language_from']} to {my_translation['language_to']} <br>
             Price: {getPriceForm.price.data} <br>
             Total words: {words} <br>
+            <h4>Glossary Pairs</h4>
+            {','.join(my_translation['glossaryPairs'])}
             <br>
             Click HERE to view and review the translation.
             </div>
@@ -223,15 +237,15 @@ def home():
             mail.send(msg)
 
         session['popup'] = False
-        my_translation = None
-        return redirect(url_for('client.home'))
+        # my_translation = None
+        return redirect(url_for('client.show_translation',id=my_translation['id']))
     
     # TRANSLATIONS TABLE
     try:
         translations = Client.query.filter_by(id=current_user.id).first().translations
     except:
         translations = []
-    return render_template('client.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,translationForm=translationForm,translations=translations,getPriceForm=getPriceForm,translation=my_translation, glossaryPairs=session.get('glossaryPairs', 3))
+    return render_template('client.html',registerForm=registerForm,loginForm=loginForm,forgotPassForm=forgotPassForm,users=users,translationForm=translationForm,translations=translations,getPriceForm=getPriceForm,translation=my_translation)
 
 @client.route('/logout')
 def logout():
@@ -299,6 +313,7 @@ def change(id):
 @client.route('/create-translation')
 def create_translation():
     session['trans-page'] = "create"
+    session['glossary-pairs'] = 3
     if(session.get('popup_close')):
         session['popup_close'] = None
     return redirect(url_for('client.home'))
@@ -361,16 +376,23 @@ def delete_trans():
     bot = Bot.query.get(1)
     return bot.email
 
+@client.route('/add-glossary-pair')
+def addGlossary():
+    num = session.get('glossary-pairs')
+    if (num<10):
+        session['glossary-pairs'] = num+1
+    return redirect(url_for('client.home'))
+
 """
 A route for allow new glossaryEntries to be added to the database while the form is being processed for the transaltion request
 The create translation form
 """
-@client.route('/add_glossary_pair',methods=['POST'])
-def add_glossary_pair():
-    sourceText = request.form['sourceText']
-    targetText= request.form['targetText']
-    glossaryPair = GlossaryPair(sourceText=sourceText, targetText=targetText)
-    db.session.add(glossaryPair)
-    db.session.commit()
-    #where do we go after this? May need to add another one
-    return gettext("Glossary Pair submitted successfully!")
+# @client.route('/add_glossary_pair',methods=['POST'])
+# def add_glossary_pair():
+#     sourceText = request.form['sourceText']
+#     targetText= request.form['targetText']
+#     glossaryPair = GlossaryPair(sourceText=sourceText, targetText=targetText)
+#     db.session.add(glossaryPair)
+#     db.session.commit()
+#     #where do we go after this? May need to add another one
+#     return gettext("Glossary Pair submitted successfully!")

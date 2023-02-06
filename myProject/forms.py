@@ -54,21 +54,29 @@ class TranslationForm(FlaskForm):
     berlin_tz = pytz.timezone("Europe/Berlin")
     time_now  = datetime.now(berlin_tz).strftime("%d %M %Y %H:%M")
     possibleDeadlines = [30,60,90,240]
-    deadlineChoices = list(map(lambda x: str(x)+ " minutes from your Submit", possibleDeadlines))
+    deadlineChoices = [(i,str(i)+ " minutes from your Submit") for i in possibleDeadlines]
     
     language_from = SelectField("From",choices=[('english','English'),('german','German'),("russian","Russian")],default="german", validators=[DataRequired()])
     language_to = SelectField("To",choices=[('english','English'),('german','German'),("russian","Russian")],default="english", validators=[DataRequired(),languageNotEqualTo])
-
+    glossary_pair_1 = FormField(GlossaryPairForm)
+    glossary_pair_2 = FormField(GlossaryPairForm)
+    glossary_pair_3 = FormField(GlossaryPairForm)
+    glossary_pair_4 = FormField(GlossaryPairForm)
+    glossary_pair_5 = FormField(GlossaryPairForm)
+    glossary_pair_6 = FormField(GlossaryPairForm)
+    glossary_pair_7 = FormField(GlossaryPairForm)
+    glossary_pair_8 = FormField(GlossaryPairForm)
+    glossary_pair_9 = FormField(GlossaryPairForm)
+    glossary_pair_10 = FormField(GlossaryPairForm)
     """
     Adding the new glossary pair form here
     """
-    glossary_pair = FormField(GlossaryPairForm, label='')
-    add_glossary_pair = SubmitField('Add Another Glosssary pair')
+    # add_glossary_pair = SubmitField('Add Another Glosssary pair')
     """
     
     """
-    deadline = RadioField("Deadline",choices=deadlineChoices,validators=[DataRequired()])
-    rejectCriteria = RadioField('Reject Criteria',choices=[(1,"Reject"),(2,"50% Discount"),(3,"No Action")],default=1, validators=[DataRequired()])
+    deadline = RadioField("Deadline",choices=deadlineChoices,validators=[Optional()])
+    rejectCriteria = RadioField('Reject Criteria',choices=[(1,"Reject"),(2,"50% Discount"),(3,"No Action")],default=1, validators=[])
     text = TextAreaField("Source text",validators=[DataRequired()])
     submit = SubmitField('editPrice')
 

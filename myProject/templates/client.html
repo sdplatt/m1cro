@@ -206,10 +206,12 @@
 
 </style>
 
-
-<div style="text-align:right">
-<a style="display: inline;" href="#" class="btn btn-light">TOGGLE LANGUAGE</a>
-<a style="display: inline;" href="/logout" class="btn btn-primary">LOGOUT</a>
+<div class="d-flex justify-content-between px-4">
+    <p>Welcome {{current_user.name}} | {{current_user.email}}</p>
+    <div>
+    <a style="display: inline;" href="#" class="btn btn-light">TOGGLE LANGUAGE</a>
+    <a style="display: inline;" href="/logout" class="btn btn-primary">LOGOUT</a>
+    </div>
 </div>
 <div class="translations my-4">
     <div class="all-translations">
@@ -252,7 +254,7 @@
             {%endif%}
             {% if session['trans-page'].email or session['trans-page'].translation %}
             <div class="translated-text">
-                <textarea id="translation-textarea" style="resize: none;" type="textarea" readonly class="form-control">{{session['trans-page'].translation or 'No translation yet'}}</textarea>
+                <textarea id="translation-textarea" type="textarea" style="resize: none;" readonly class="form-control" rows="20">{{session['trans-page'].translation or 'No translation yet'}}</textarea>
                 {%if session['trans-page'].translation and not session['trans-page'].rating %}
                 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='stars.css') }}">
                     <form action="/rating/{{session['trans-page'].id}}" class="mt-3" method="POST" >
@@ -299,16 +301,15 @@
                 {{translationForm.language_to(class='form-control',id="language_to")}}
             </div>
             <div class="mb-3">
-            <!----Glossary Pairs here --->
-            <!----Issue is need to loop over translationForm.glossaryPairs but 0 of them  jinja2.exceptions.UndefinedError: wtforms.fields.form.FormField object has no element add SESSION OBJECt 1--->
-            {% for i in range(glossaryPairs) %}
-                <p>Glossary Pair No. {{ i+1 }} From > To </p>
-                    {{ translationForm.glossary_pair.sourceText }} > {{ translationForm.glossary_pair.targetText }}
-            {% endfor %}
-            <div> </div>
-            <!-- button will allow the user to add more fields to the form. -->
-            {{ translationForm.add_glossary_pair }}
-            <!-- Replaced reject criteria  -->
+                {% for i in range(1,11) %}
+                {{ translationForm['glossary_pair_{}'.format(i)].hidden_tag() }}
+                {% endfor %}
+                {% for i in range(1,session['glossary-pairs']+1) %}
+                <p>Glossary Pair No. {{ i }} From > To </p>
+                {{ translationForm['glossary_pair_{}'.format(i)].sourceText }} > {{ translationForm['glossary_pair_{}'.format(i)].targetText }}
+                {% endfor %}
+            </div>
+            <a href="/add-glossary-pair" class="btn btn-info my-2">Add Glossary Pair</a>
             <div class="mb-3">
                 {{translationForm.text.label(class='form-label')}} <span id="word-count" class="ms-2 text-secondary"></span>
                 {{translationForm.text(class='form-control',rows=15,id="translation-text")}}
