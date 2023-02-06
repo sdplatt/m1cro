@@ -1,3 +1,4 @@
+.DS_Store
 __pycache__
 flask_session
 migrations
@@ -9,4 +10,3 @@ venvm1cro/
 *.md
 *.DS_Store
 _posts/
-.DS_Store
