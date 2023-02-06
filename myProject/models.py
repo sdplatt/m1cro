@@ -26,11 +26,11 @@ class GlossaryPair(db.Model,UserMixin):
     targetText=db.Column(db.String(255),nullable=True)
     translationId = db.Column(db.Integer,db.ForeignKey('translations.id'))
 
-    def __init__(self,sourceText,targetText):
+    def __init__(self,sourceText,targetText,translationId):
         # Each (src, tar) pair goes into the glossaryPairs list to be sent for MT /client email
         self.sourceText = sourceText
         self.targetText = targetText
-
+        self.translationId = translationId
 
 class Client(db.Model,UserMixin):
     
