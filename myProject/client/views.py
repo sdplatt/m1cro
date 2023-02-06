@@ -9,7 +9,6 @@ from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 from pytz import timezone
 from jinja2 import Template
- 
 
 
 client = Blueprint('client',__name__)
