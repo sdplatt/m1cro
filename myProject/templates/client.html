@@ -167,12 +167,6 @@
         position: relative;
         background-color:#E0E0E0;
     }
-    .translated-text{
-        /* position: absolute;
-        bottom: 25px;
-        right: 22px; */
-        width: 70%;        
-    }
     .translated-text textarea{
         min-height: 180px;
         background-color:#BDBDBD;
@@ -198,6 +192,7 @@
     padding: 10px;
     border-radius: 5px;
     border: 1px blue;
+    width: 47%;
     }
 
     .gray50 {
@@ -254,7 +249,7 @@
             {%endif%}
             {% if session['trans-page'].email or session['trans-page'].translation %}
             <div class="translated-text">
-                <textarea id="translation-textarea" type="textarea" style="resize: none;" readonly class="form-control" rows="20">{{session['trans-page'].translation or 'No translation yet'}}</textarea>
+                <textarea id="translation-textarea" type="textarea" style="resize: none;" readonly class="form-control" rows="22">{{session['trans-page'].translation or 'No translation yet'}}</textarea>
                 {%if session['trans-page'].translation and not session['trans-page'].rating %}
                 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='stars.css') }}">
                     <form action="/rating/{{session['trans-page'].id}}" class="mt-3" method="POST" >
@@ -304,12 +299,22 @@
                 {% for i in range(1,11) %}
                 {{ translationForm['glossary_pair_{}'.format(i)].hidden_tag() }}
                 {% endfor %}
-                {% for i in range(1,session['glossary-pairs']+1) %}
-                <p>Glossary Pair No. {{ i }} From > To </p>
-                {{ translationForm['glossary_pair_{}'.format(i)].sourceText }} > {{ translationForm['glossary_pair_{}'.format(i)].targetText }}
-                {% endfor %}
+                <div class="d-flex">
+                    <div class="me-3">
+                        {% for i in range(1,4) %}    
+                        <p>Glossary Pair No. {{ i }} From > To </p>
+                        {{ translationForm['glossary_pair_{}'.format(i)].sourceText }} > {{ translationForm['glossary_pair_{}'.format(i)].targetText }}
+                        {% endfor %}
+                    </div>
+                    <div class="ms-3">
+                        {% for i in range(4,7) %}
+                        <p>Glossary Pair No. {{ i }} From > To </p>
+                        {{ translationForm['glossary_pair_{}'.format(i)].sourceText }} > {{ translationForm['glossary_pair_{}'.format(i)].targetText }}
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-            <a href="/add-glossary-pair" class="btn btn-info my-2">Add Glossary Pair</a>
+            <!-- <a href="/add-glossary-pair" class="btn btn-info my-2">Add Glossary Pair</a> -->
             <div class="mb-3">
                 {{translationForm.text.label(class='form-label')}} <span id="word-count" class="ms-2 text-secondary"></span>
                 {{translationForm.text(class='form-control',rows=15,id="translation-text")}}
