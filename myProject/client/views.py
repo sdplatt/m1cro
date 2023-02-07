@@ -282,8 +282,6 @@ def register():
 def remove_price_pop(id):
     session['popup'] = False
     translation = Translation.query.get(id)
-    db.session.delete(translation)
-    db.session.commit()
     session['popup_close'] = True
     curr_translation = {'l_from':translation.language_from,
                                     'l_to':translation.language_to,
@@ -291,9 +289,11 @@ def remove_price_pop(id):
                                     'text' : translation.text,
                                     'rejectCriteria':int(translation.rejectCriteria)}
     for i,pair in enumerate(translation.glosssaryPairs):
-        curr_translation[f"glossary_pair_{i}"] = {'source':pair.sourceText,"target":pair.targetText}
+        curr_translation[f"glossary_pair_{i+1}"] = {'source':pair.sourceText,"target":pair.targetText}
+    print(curr_translation)
     session['curr_translation'] = curr_translation
-
+    db.session.delete(translation)
+    db.session.commit()
     return redirect(url_for('client.home'))
 
 @client.route('/change/<id>',methods=['GET','POST'])
