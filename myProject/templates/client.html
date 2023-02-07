@@ -296,6 +296,10 @@
                 {{translationForm.language_to(class='form-control',id="language_to")}}
             </div>
             <div class="mb-3">
+                {{translationForm.deadline.label(class='form-label')}}
+                {{translationForm.deadline(class='form-control radio-form')}}
+            </div>
+            <div class="mb-3">
                 {% for i in range(1,11) %}
                 {{ translationForm['glossary_pair_{}'.format(i)].hidden_tag() }}
                 {% endfor %}
@@ -368,6 +372,10 @@
                     <option value="german" {{'selected' if currTrans['l_to'] == 'german' }}>German</option>
                     <option value="russian" {{'selected' if currTrans['l_to'] == 'russian' }}>Russian</option>
                 </select>
+            </div>
+            <div class="mb-3">
+                {{translationForm.deadline.label(class='form-label')}}
+                {{translationForm.deadline(class='form-control radio-form')}}
             </div>
             <div class="mb-3">
                 {% for i in range(1,11) %}
