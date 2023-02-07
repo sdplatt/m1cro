@@ -138,6 +138,7 @@ def home():
             session['avg_price'] = "{:.2f}".format(0.08*words) #this will come from DB
             session['min_price'] = "{:.2f}".format(min_word_price*words)
             now = datetime.now(timezone(site_time_zone))
+            #BUG this is incorrect!!!!!
             session['deadline_as_time'] = (datetime.now(timezone(site_time_zone)) + timedelta(minutes=int(grace_period) + int(translationForm.deadline.data)*30)).strftime("%H:%M")
             glosaaryPairs = [f"{i.sourceText} -> {i.targetText}" for i in translation.glosssaryPairs]
             my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text,"words":words,"glossaryPairs":glosaaryPairs}
