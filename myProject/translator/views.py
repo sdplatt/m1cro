@@ -182,7 +182,7 @@ def change(id):
 @translator.route('/accept-page/<translationId>',methods=['GET','POST'])
 def accept_page(translationId):
     translation = Translation.query.get(translationId)
-    time_diff = translation.deadline_time.astimezone(timezone(site_time_zone)) - datetime.now(timezone(site_time_zone))
+    time_diff = translation.deadline_time.astimezone(timezone('CET')) - datetime.now(timezone('CET'))
     # deadline_in_minutes = str(time_diff.total_seconds() / 60)
     # deadline_in_minutes = datetime.now(timezone('CET'))
     if(translation.translatorId):

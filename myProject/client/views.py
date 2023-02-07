@@ -158,9 +158,9 @@ def home():
             #new_candidates = list(set(beta_testers + candidates)) #use later
             if current_user.email in candidates:
                 candidates.remove(current_user.email)
-            deadline = datetime.now(timezone(site_time_zone)) + timedelta(minutes=int(grace_period) + int(my_translation['deadline'])*30)
+            deadline = datetime.now(timezone('CET')) + timedelta(minutes=10 + (int(my_translation['deadline'])*30))
             translation.postProcess(getPriceForm.price.data)
-            translation.deadline_time = deadline.astimezone(timezone(site_time_zone)) #Now ALL CET!!!
+            translation.deadline_time = deadline.astimezone(timezone('CET'))
             db.session.commit()
             if(session.get('popup_close')):
                 session['popup_close'] = None
