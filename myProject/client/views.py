@@ -95,7 +95,6 @@ def home():
     is used to dynamically add more instances of the glossaryPair in the Translatin create frm
     """
     if translationForm.validate_on_submit():
-        print("Hwllo worold")
 
         global my_translation
         text = translationForm.text.data
@@ -111,7 +110,6 @@ def home():
                                             'text' : translationForm.text.data,
                                             'rejectCriteria':int(translationForm.rejectCriteria.data)}
         else:
-            print("Hello")
             #ELSE: Source is suffic. small good to go
             status = Status('new') 
             db.session.add(status)
@@ -288,11 +286,15 @@ def remove_price_pop(id):
     db.session.delete(translation)
     db.session.commit()
     session['popup_close'] = True
-    session['curr_translation'] = {'l_from':translation.language_from,
+    curr_translation = {'l_from':translation.language_from,
                                     'l_to':translation.language_to,
                                     'deadline':str(translation.deadline),
                                     'text' : translation.text,
                                     'rejectCriteria':int(translation.rejectCriteria)}
+    for i,pair in enumerate(translation.glosssaryPairs):
+        curr_translation[f"glossary_pair_{i}"] = {'source':pair.sourceText,"target":pair.targetText}
+    session['curr_translation'] = curr_translation
+
     return redirect(url_for('client.home'))
 
 @client.route('/change/<id>',methods=['GET','POST'])
