@@ -385,13 +385,13 @@
                     <div class="me-3">
                         {% for i in range(1,4) %}    
                         <p>Glossary Pair No. {{ i }} From > To </p>
-                        <input type="text" name="" id="" value={{currTrans['glossary_pair_{}'.format(i)]['source'] }}> > <input type="text" name="" id="" value={{currTrans['glossary_pair_{}'.format(i)]['target'] }} >
+                        <input type="text" name="glossary_pair_{{i}}-sourceText" id="" value={{currTrans['glossary_pair_{}'.format(i)]['source'] }}> > <input type="text" name="glossary_pair_{{i}}-targetText" id="" value={{currTrans['glossary_pair_{}'.format(i)]['target'] }} >
                         {% endfor %}
                     </div>
                     <div class="ms-3">
                         {% for i in range(4,7) %}
                         <p>Glossary Pair No. {{ i }} From > To </p>
-                        {{ translationForm['glossary_pair_{}'.format(i)].sourceText }} > {{ translationForm['glossary_pair_{}'.format(i)].targetText }}
+                        <input type="text" name="glossary_pair_{{i}}-sourceText" id="" value={{currTrans['glossary_pair_{}'.format(i)]['source'] }}> > <input type="text" name="glossary_pair_{{i}}-targetText" id="" value={{currTrans['glossary_pair_{}'.format(i)]['target'] }} >
                         {% endfor %}
                     </div>
                 </div>

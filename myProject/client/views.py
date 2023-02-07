@@ -19,7 +19,7 @@ def home():
     #CONFIG VARS
     max_default_word_len = current_app.config["MAX_WORD_LENGTH"]
     min_word_price = current_app.config["MIN_WORD_PRICE"]
-    site_time_zone = current_app.config["SITE_TIMEZONE"]
+    site_time_zone = 'CET' if not current_app.config["SITE_TIMEZONE"] else current_app.config["SITE_TIMEZONE"]
     site_title = current_app.config["SITE_TITLE"]
     site_admin = current_app.config["SITE_ADMIN"]
     site_currency = current_app.config["SITE_CURRENCY"]
@@ -136,8 +136,9 @@ def home():
             session['avg_price'] = "{:.2f}".format(0.08*words) #this will come from DB
             session['min_price'] = "{:.2f}".format(min_word_price*words)
             now = datetime.now(timezone(site_time_zone))
-            #BUG this is incorrect!!!!!
-            session['deadline_as_time'] = (datetime.now(timezone(site_time_zone)) + timedelta(minutes=int(grace_period) + int(translationForm.deadline.data)*30)).strftime("%H:%M")
+            # Value in deadline fieldpossibleDeadlines = [30,60,90,240]
+            minuteShift = grace_period + translationForm.deadline.data
+            session['deadline_as_time'] = (now + timedelta(minutes=minuteShift)).strftime("%H:%M")
             glosaaryPairs = [f"{i.sourceText} -> {i.targetText}" for i in translation.glosssaryPairs]
             my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text,"words":words,"glossaryPairs":glosaaryPairs}
             session['curr_trans'] = my_translation
@@ -148,6 +149,7 @@ def home():
         session['glossary-pairs'] = 6
         price = getPriceForm.price.data
         words = my_translation['words']
+        deadline = session['deadline_as_time']
         if(price/words>=min_word_price):
             """if at or above threshold call humans"""
             translation = Translation.query.get(my_translation['id'])
@@ -158,16 +160,22 @@ def home():
             #new_candidates = list(set(beta_testers + candidates)) #use later
             if current_user.email in candidates:
                 candidates.remove(current_user.email)
-            deadline = datetime.now(timezone('CET')) + timedelta(minutes=10 + (int(my_translation['deadline'])*30))
+            #DEADLIE ReComputed
+            now = datetime.now(timezone(site_time_zone))
+            # Value in deadline fieldpossibleDeadlines = [30,60,90,240]
+            minuteShift = grace_period + int(my_translation['deadline'])
+            deadline = (now + timedelta(minutes=minuteShift)).strftime("%H:%M")
             translation.postProcess(getPriceForm.price.data)
             translation.deadline_time = deadline.astimezone(timezone('CET'))
             db.session.commit()
             if(session.get('popup_close')):
                 session['popup_close'] = None
             words = len(my_translation['text'].split(' '))
+            msg_site_title = '''A new Job offer from {site_title}'''
+            site_admin = 'pcktlwyr@gmail.com'
             msg = Message(
-                '''A Job offer from {site_title}''',
-                sender ='pcktlwyr@gmail.com',
+                msg_site_title,
+                sender = site_admin,
                 bcc = candidates
                 )
             msg.html = f'''
@@ -181,7 +189,7 @@ def home():
             Current_time: {now.strftime("%H:%M")} CET <br>
             Deadline: {deadline.strftime("%H:%M")} CET <br>
             <h4>Glossary Pairs</h4>
-            {','.join(my_translation['glossaryPairs'])}
+            {'|'.join(my_translation['glossaryPairs'])}
             <br>
             <p>
             Click <a href="{request.base_url}translator/accept-page/{my_translation['id']}">here</a> to accept or reject the translation.
@@ -283,8 +291,6 @@ def register():
 def remove_price_pop(id):
     session['popup'] = False
     translation = Translation.query.get(id)
-    db.session.delete(translation)
-    db.session.commit()
     session['popup_close'] = True
     curr_translation = {'l_from':translation.language_from,
                                     'l_to':translation.language_to,
@@ -292,9 +298,11 @@ def remove_price_pop(id):
                                     'text' : translation.text,
                                     'rejectCriteria':int(translation.rejectCriteria)}
     for i,pair in enumerate(translation.glosssaryPairs):
-        curr_translation[f"glossary_pair_{i}"] = {'source':pair.sourceText,"target":pair.targetText}
+        curr_translation[f"glossary_pair_{i+1}"] = {'source':pair.sourceText,"target":pair.targetText}
+    print(curr_translation)
     session['curr_translation'] = curr_translation
-
+    db.session.delete(translation)
+    db.session.commit()
     return redirect(url_for('client.home'))
 
 @client.route('/change/<id>',methods=['GET','POST'])
