@@ -89,7 +89,7 @@ def home():
     # translations form
     translationForm = TranslationForm()
     if not session.get('glossary-pairs'):
-        session['glossary-pairs'] = 3
+        session['glossary-pairs'] = 6
     """
     GLoassry Pair form is the add_glossary_pair i the Translation form which serves as the DyanmicForm
     is used to dynamically add more instances of the glossaryPair in the Translatin create frm
@@ -146,7 +146,7 @@ def home():
 
     getPriceForm = GetPriceForm()
     if getPriceForm.validate_on_submit():
-        session['glossary-pairs'] = 3
+        session['glossary-pairs'] = 6
         price = getPriceForm.price.data
         words = my_translation['words']
         if(price/words>=min_word_price):
@@ -313,7 +313,7 @@ def change(id):
 @client.route('/create-translation')
 def create_translation():
     session['trans-page'] = "create"
-    session['glossary-pairs'] = 3
+    session['glossary-pairs'] = 6
     if(session.get('popup_close')):
         session['popup_close'] = None
     return redirect(url_for('client.home'))
@@ -373,8 +373,10 @@ def submit_review(id):
 
 @client.route('/test')
 def delete_trans():
-    bot = Bot.query.get(1)
-    return bot.email
+    translation = Translation.query.get(7)
+    translation.translation = 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dicta explicabo, quae facilis fugit deserunt error? Temporibus nobis veniam sed repellat at deleniti, alias laboriosam, vel, aspernatur laborum est! Eum, magnam repellat! Sunt alias repellat culpa ratione quod maxime, enim blanditiis expedita sequi sint quae tempora modi dolorem iste, mollitia debitis reiciendis? Quos illum eum mollitia odio libero ipsum? Rerum eaque quam corrupti inventore ipsa maxime modi voluptatibus doloribus eos error aspernatur neque commodi consectetur quae, vitae illum at a placeat voluptatem magni? Commodi, necessitatibus corrupti laboriosam ipsa sint quis perferendis aut dolorum non, nam soluta blanditiis natus. Dolorum fuga modi aut quisquam, possimus omnis eius excepturi aliquid et, enim vero architecto ipsum ipsam minima delectus ea iste sapiente voluptas veritatis recusandae unde commodi culpa iure. Quas, sit nesciunt mollitia expedita doloribus neque optio asperiores nulla iusto fuga commodi veritatis vel quae eos labore hic rem aperiam totam soluta? Aut voluptatibus nisi commodi officia itaque nihil nobis esse velit voluptates optio tempora vitae laboriosam sed magni obcaecati, quasi unde impedit reiciendis inventore, ratione porro consequuntur illum fuga cumque? Quam, possimus! Facere laboriosam esse odit quae quia dolore rerum sint aliquam pariatur quasi temporibus harum eveniet debitis praesentium quas enim eaque, autem, nostrum illo. Dolorum eaque dolore quam possimus eum quas minus reiciendis, nam pariatur beatae molestiae voluptatem quo nobis, hic explicabo unde, odio provident assumenda placeat? Sequi error dicta molestias debitis alias minus necessitatibus reprehenderit reiciendis temporibus nam molestiae porro, quas distinctio? Tempora excepturi provident nihil iusto fugiat dolores ducimus necessitatibus neque ipsum. Eligendi, quae? Quod dignissimos totam voluptate, aliquid molestiae modi iusto facere nulla nesciunt, at expedita nihil, in molestias officiis aliquam? Accusamus fugit reprehenderit, similique harum maxime repudiandae. Tempora repudiandae culpa libero consequatur, quos natus rerum. Quas laborum nihil magni vero porro natus dolorum magnam consequatur incidunt saepe distinctio recusandae quo fugiat esse sit harum tenetur, maiores eum aut autem! Non mollitia asperiores optio consequatur quidem molestiae, fuga eius odio in accusantium similique pariatur iste quod vero? Veritatis officia, quo magnam placeat magni reprehenderit voluptate dolore accusantium esse corrupti saepe. Sunt consequuntur officia corporis earum error doloremque tenetur accusamus'
+    db.session.commit()
+    return None
 
 @client.route('/add-glossary-pair')
 def addGlossary():
