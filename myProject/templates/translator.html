@@ -178,6 +178,13 @@
         min-height: 100px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.14);
         cursor: pointer;
+        position: relative;
+    }
+    .translation .delete-icon{
+        position: absolute;
+        right: 30px;
+        top: 20px;
+        color: black;
     }
     .new-translation{
         width: 70%;
@@ -205,6 +212,7 @@
         <div class="all-heading py-2"><h4 class="text-center">All Services</h4></div>
         {% for service in services %}
         <div class="translation px-4 py-3">
+            <a href="/translator/delete-service/{{service.id}}" class="delete-icon"><i class="fa-solid fa-trash"></i></a>
             <p><span class="fw-bold">From/aus/с:</span> {{service.language_from}} To/nach/в {{service.language_to}}</p>
             <p><span class="fw-bold">Min-Price:</span> ${{service.min_price}}</p>
             <p><span class="fw-bold">Target Price:</span> ${{service.target_price}}</p>

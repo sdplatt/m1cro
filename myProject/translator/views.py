@@ -254,3 +254,10 @@ def services():
     session['translator_page']='services'
     session['translations'] = None
     return redirect(url_for('translator.home'))
+
+@translator.route('/delete-service/<id>')
+def del_service(id):
+    service = Service.query.get(id)
+    db.session.delete(service)
+    db.session.commit()
+    return redirect(url_for('translator.home'))

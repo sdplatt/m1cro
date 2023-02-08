@@ -100,7 +100,7 @@ def home():
         global my_translation
         text = translationForm.text.data
         words = len(text.split(' '))
-        translationForm.deadline.data =  30
+        # translationForm.deadline.data =  30
         translationForm.rejectCriteria.data = 1
         
         if(words>max_default_word_len):
@@ -137,13 +137,13 @@ def home():
             session['avg_price'] = "{:.2f}".format(0.08*words) #this will come from DB
             session['min_price'] = "{:.2f}".format(min_word_price*words)
             now = datetime.now(timezone(site_time_zone))
-            # Value in deadline fieldpossibleDeadlines = [30,60,90,240]
-            minuteShift = grace_period + translationForm.deadline.data
-            session['deadline_as_time'] = (now + timedelta(minutes=minuteShift)).strftime("%H:%M")
+            session['deadline_as_time'] = (datetime.now(timezone(site_time_zone)) + timedelta(minutes=int(grace_period) + int(translationForm.deadline.data))).strftime("%H:%M")
             glosaaryPairs = [f"{i.sourceText} -> {i.targetText}" for i in translation.glosssaryPairs]
             my_translation = {'id': translation.id,'language_from':translation.language_from,'language_to':translation.language_to,"deadline":translation.deadline,"text":translation.text,"words":words,"glossaryPairs":glosaaryPairs}
             session['curr_trans'] = my_translation
         return redirect(url_for('client.home'))
+    elif not translationForm.validate_on_submit():
+        print(translationForm.errors.items())
 
     getPriceForm = GetPriceForm()
     if getPriceForm.validate_on_submit():
@@ -162,11 +162,7 @@ def home():
             #new_candidates = list(set(beta_testers + candidates)) #use later
             if current_user.email in candidates:
                 candidates.remove(current_user.email)
-            #DEADLIE ReComputed
-            now = datetime.now(timezone(site_time_zone))
-            # Value in deadline fieldpossibleDeadlines = [30,60,90,240]
-            minuteShift = grace_period + int(my_translation['deadline'])
-            deadline = (now + timedelta(minutes=minuteShift)).strftime("%H:%M")
+            deadline = datetime.now(timezone(site_time_zone)) + timedelta(minutes=int(grace_period) + int(my_translation['deadline']))
             translation.postProcess(getPriceForm.price.data)
             translation.deadline_time = deadline.astimezone(timezone('CET'))
             db.session.commit()
