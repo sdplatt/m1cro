@@ -326,7 +326,7 @@
             <!-- <a href="/add-glossary-pair" class="btn btn-info my-2">Add Glossary Pair</a> -->
             <div class="mb-3">
                 {{translationForm.text.label(class='form-label')}} <span id="word-count" class="ms-2 text-secondary"></span>
-                {{translationForm.text(class='form-control',rows=15,id="translation-text")}}
+                {{translationForm.text(class='form-control',rows=22,id="translation-text")}}
             </div>
             <p id="translation-error" class="text-danger"></p>
             <div class="mb-3">
@@ -421,7 +421,7 @@
             <!-- </div> -->
             <div class="mb-3">
                 {{translationForm.text.label(class='form-label')}} <span id="word-count" class="ms-2 text-secondary"></span>
-                <textarea class='form-control' rows=10 name="text" id="transaltion-text" cols="30" rows="10">{{currTrans['text']}}</textarea>
+                <textarea class='form-control' rows='22' name="text" id="transaltion-text" cols="30">{{currTrans['text']}}</textarea>
             </div>
             <p id="translation-error" class="text-danger"></p>
             <div class="mb-3">
