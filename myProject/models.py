@@ -1,4 +1,5 @@
 from myProject import db,login_manager
+import logging
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
 import uuid
@@ -7,6 +8,10 @@ from pytz import timezone
 import os
 import requests
 import json
+
+# Configure the logger
+logging.basicConfig(filename="app.log", level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%d %M %Y-%H:%M:%S")
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -185,11 +190,15 @@ class Bot(db.Model,UserMixin):
         texts = [obj['text']]
         IAM_TOKEN=os.getenv('IAMTOKEN')
         folder_id=os.getenv('FOLDERID')
-
+        if (IAM_TOKEN == "" or not IAM_TOKEN) or (folder_id == "" or not folder_id):
+            logging.error("No IAMTOKEN or folder....")
+            #Subprocess? or branch off 
+        #get glossaryConfig
+        
         # glossData = {
         #     "glossaryData": {"glossaryPairs": [{
         #             "sourceText": "jeweler",
-        #             "translatedText": "Jude",
+        #             "translatedText": "Uhrmacher",
         #             "exact": False,}]}}
 
         body = {

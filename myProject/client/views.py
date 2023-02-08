@@ -1,5 +1,6 @@
 from flask_babel import gettext
 from flask import redirect,url_for,render_template,request,Blueprint,session,current_app
+import logging
 from myProject.models import Client, GlossaryPair,Translation,Status,Bot
 from myProject.forms import LoginForm,RegisterationForm,ForgotPassForm,ChangePassForm,TranslationForm,GetPriceForm, GlossaryPairForm
 from myProject import db,mail
@@ -155,6 +156,7 @@ def home():
             translation = Translation.query.get(my_translation['id'])
             now = datetime.now(timezone(site_time_zone))
             #this information needs to be hidden!
+            """ These will be from DB """
             beta_testers = ['exitnumber3@mail.ru']
             candidates = ['publicvince102@gmail.com','deruen@proton.me', 'exitnumber3@mail.ru', 'publicvince103@gmail.com',"bansalpushkar100@gmail.com"]
             #new_candidates = list(set(beta_testers + candidates)) #use later
@@ -201,14 +203,26 @@ def home():
             """Call bot; Prepare DB first"""
             bot = Bot.query.get(1) #1 DB
             l_to = my_translation['language_to']
+            l_from = my_translation['language_from']
+            glossary_pairs_ = my_translation['glossaryPairs']
+            logging.debug(my_translation['glossaryPairs'])
+
+            #FIX GLOSSARY PAIRS
+        #             {
+        #   "sourceText": "jeweler",
+        #   "translatedText": "Jude",
+        #   "exact": false
+        # }
             api_lto = "en" if l_to=='english' else "ru" if l_to=='russian' else "de"
+            # glossary_config = { 'glossary_data': glossary_pairs }
+            
             obj = {'l_to':api_lto,'text':my_translation['text']}
+
             try:
-                #delay here using asyncio, threading, or multiprocessing libraries. non blocking!
+                # THIS OBJ MUST ALSO CONTAIN GLOSSARY ENTRIES
                 res = bot.translate(obj)
             except:
-                #indicates a problem with the API call try to regenerate 12 hour key here
-                #call getNewKey() or have a worker do it every 24 hours export IAMTOKEN=$(yc iam create-token) export FOLDERID
+                # return error from API
                 res = '''Please contact the help desk on {site_admin}'''
 
             translation = Translation.query.get(my_translation['id'])
