@@ -266,10 +266,7 @@
         if(language_from == language_to){
             error.innerText="Language from and Langauge to cannot be same."
         }
-        else if(minPrice==5 && targetPrice==10){
-            createServiceForm.submit()
-        }
-        else if(minPrice>targetPrice || (minPrice==10 && targetPrice==5)){
+        else if(parseInt(minPrice)>parseInt(targetPrice)){
             error.innerText="Target Price must be greater than or equal to min price."
         }else{
             createServiceForm.submit()
